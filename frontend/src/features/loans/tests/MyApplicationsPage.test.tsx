@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import MyApplicationsPage from "./MyApplicationsPage";
+import MyApplicationsPage from "./pages/MyApplicationsPage";
 import * as loanService from "../../services/loanApplicationService";
 import type { LoanApplicationSummary } from "../../types/loanApplication";
 

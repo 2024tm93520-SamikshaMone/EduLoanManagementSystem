@@ -87,6 +87,26 @@
   white-space: nowrap;
 }
 
+/* Fix browser autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #202020 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Consistent input styling */
+.login-input {
+  background-color: #ffffff;
+  color: #202020;
+  border: 1px solid #d8d2e0;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 14px;
+}
+
 /* Main layout */
 .login-content {
   flex: 1;

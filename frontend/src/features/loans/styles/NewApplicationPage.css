@@ -1,0 +1,701 @@
+/* =========================================
+   New Application Page
+   ========================================= */
+
+.admin-page {
+  min-height: calc(100vh - 72px);
+  margin-left: 198px;
+  padding: 36px 40px 50px;
+  padding-top: 36px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(248, 240, 255, 0.8),
+    #ffffff 45%,
+    rgba(248, 240, 255, 0.6)
+  );
+
+  box-sizing: border-box;
+}
+
+/* =========================================
+   Main Card
+   ========================================= */
+
+.admin-card {
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 38px 50px 48px;
+
+  background: #ffffff;
+  border: 1px solid #e8dff0;
+  border-radius: 16px;
+
+  box-shadow: 0 8px 28px rgba(70, 35, 100, 0.06);
+}
+
+/* =========================================
+   Page Heading
+   ========================================= */
+
+.admin-card h1 {
+  position: relative;
+  margin: 0 0 34px;
+  padding-top: 18px;
+
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #24212a;
+  letter-spacing: -1px;
+}
+
+.admin-card h1::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 46px;
+  height: 4px;
+
+  border-radius: 4px;
+  background: #a100ff;
+}
+
+/* =========================================
+   Wizard Steps
+   ========================================= */
+
+.admin-card ol {
+  display: flex;
+  gap: 12px;
+
+  margin: 0 0 30px;
+  padding: 0;
+
+  list-style: none;
+  counter-reset: step;
+}
+
+.admin-card ol li {
+  flex: 1;
+  padding: 14px 12px;
+
+  border: 1px solid #eee2fa;
+  border-radius: 8px;
+
+  background: #faf5ff;
+  color: #665c7d;
+
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.admin-card ol li::before {
+  counter-increment: step;
+  content: counter(step) ". ";
+
+  color: #a100ff;
+  font-weight: 700;
+}
+
+/* =========================================
+   Form Layout
+   ========================================= */
+
+/* Keep wizard forms single-column */
+
+.admin-card form {
+  width: 100%;
+}
+
+/* Keep document upload form in its own layout */
+.document-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Form field containers */
+
+.admin-card form > div {
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 18px;
+}
+
+/* Labels */
+
+.admin-card label {
+  display: block;
+  margin-bottom: 7px;
+
+  color: #5e5677;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* =========================================
+   Input Fields
+   ========================================= */
+
+.admin-card input,
+.admin-card select,
+.admin-card textarea {
+  display: block;
+
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #ded5e8;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #292531;
+
+  font-family: inherit;
+  font-size: 15px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-card input:focus,
+.admin-card select:focus,
+.admin-card textarea:focus {
+  border-color: #a100ff;
+  box-shadow: 0 0 0 3px rgba(161, 0, 255, 0.1);
+}
+
+.admin-card input::placeholder,
+.admin-card textarea::placeholder {
+  color: #aaa2b8;
+}
+
+/* =========================================
+   Buttons
+   ========================================= */
+
+.admin-card button {
+  min-height: 44px;
+  padding: 11px 28px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: linear-gradient(90deg, #a100ff, #9200e8);
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-card button:hover {
+  box-shadow: 0 5px 14px rgba(161, 0, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.admin-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================================
+   Wizard Action Buttons
+   ========================================= */
+
+/* Add spacing above Next / Back buttons */
+
+.admin-card form button {
+  margin-top: 10px;
+  margin-bottom: 12px;
+  align-self: flex-start;
+}
+
+/* Keep multiple buttons aligned */
+
+.admin-card form button + button {
+  margin-left: 12px;
+}
+
+/* =========================================
+   Link Buttons
+   ========================================= */
+
+.admin-card .link-button {
+  display: inline-block;
+
+  margin-top: 24px;
+  padding: 0;
+
+  border: none;
+  background: none;
+
+  color: #8f00d9;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.admin-card .link-button:hover {
+  text-decoration: underline;
+  box-shadow: none;
+  transform: none;
+}
+
+/* =========================================
+   Error and Success Messages
+   ========================================= */
+
+.form-error {
+  margin-top: 14px;
+  padding: 12px 16px;
+
+  border: 1px solid #f2bcbc;
+  border-radius: 8px;
+
+  background: #fff2f2;
+  color: #b42318;
+
+  font-size: 14px;
+}
+
+.form-success {
+  margin-top: 14px;
+  padding: 12px 16px;
+
+  border: 1px solid #b7e5c8;
+  border-radius: 8px;
+
+  background: #edfff3;
+  color: #147d3f;
+
+  font-size: 14px;
+}
+
+/* =========================================
+   Responsive Design
+   ========================================= */
+
+@media (max-width: 900px) {
+  .admin-page {
+    margin-left: 78px;
+    padding: 30px 24px 40px;
+  }
+
+  .admin-card {
+    padding: 32px;
+  }
+}
+
+@media (max-width: 560px) {
+  .admin-page {
+    margin-left: 0;
+    padding: 20px 12px 30px;
+  }
+
+  .admin-card {
+    padding: 26px 20px 32px;
+  }
+
+  .admin-card h1 {
+    font-size: 28px;
+  }
+
+  .admin-card ol {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* =========================================
+   NEW APPLICATION WIZARD - SPACING FIX
+   ========================================= */
+
+/* Wizard container */
+.wizard {
+  width: 100%;
+}
+
+/* Wizard steps */
+.wizard-steps {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+/* Individual step panels */
+.wizard-panel {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+/* Form fields - consistent spacing */
+.wizard-panel .form-group {
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+/* Labels */
+.wizard-panel .form-group label {
+  display: block;
+  margin-bottom: 7px;
+}
+
+/* Inputs, dropdowns and textareas */
+.wizard-panel input,
+.wizard-panel select,
+.wizard-panel textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+  box-sizing: border-box;
+}
+
+/* Last field spacing */
+.wizard-panel .form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* =========================================
+   WIZARD NAVIGATION BUTTONS
+   ========================================= */
+
+.wizard-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 28px;
+  padding-top: 0;
+}
+
+/* Next and Back buttons */
+.wizard-nav > button {
+  margin: 0;
+}
+
+/* Primary buttons */
+.wizard-nav > button:not(.link-button) {
+  min-height: 44px;
+  padding: 11px 28px;
+  border-radius: 8px;
+}
+
+/* Back button */
+.wizard-nav .link-button {
+  padding: 11px 0;
+  margin: 0;
+}
+
+/* Cancel link below the wizard */
+.admin-card > .link-button {
+  display: block;
+  margin-top: 28px;
+}
+
+.admin-card {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 38px 48px 48px;
+  background: #ffffff;
+  border: 1px solid #e8dff0;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(70, 35, 100, 0.06);
+}
+
+/* =========================================
+   Loan Application Stepper
+   ========================================= */
+
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 36px;
+  padding: 20px 0;
+}
+
+.wizard-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Step Circle */
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+
+  border: 2px solid #d8cce5;
+  border-radius: 50%;
+
+  background: #ffffff;
+  color: #756985;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Step Text */
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step-title {
+  color: #5e5677;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.step-description {
+  color: #9990a8;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Active Step */
+
+.wizard-step.active .step-number {
+  border-color: #a100ff;
+  background: #a100ff;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(161, 0, 255, 0.1);
+}
+
+.wizard-step.active .step-title {
+  color: #a100ff;
+}
+
+/* Completed Step */
+
+.wizard-step.completed .step-number {
+  border-color: #a100ff;
+  background: #f0d9ff;
+  color: #8f00d9;
+}
+
+.wizard-step.completed .step-title {
+  color: #292531;
+}
+
+/* Connector Line */
+
+.step-connector {
+  flex: 0.4;
+  height: 2px;
+  margin: 0 12px;
+  background: #e5d9ef;
+}
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+  .wizard-steps {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .step-connector {
+    width: 2px;
+    height: 20px;
+    margin: 0 18px;
+  }
+
+  .wizard-step {
+    flex: none;
+  }
+}
+
+/* =========================================
+   Loan Application Stepper
+   ========================================= */
+
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 36px;
+  padding: 20px 0;
+}
+
+.wizard-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Step Circle */
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+
+  border: 2px solid #d8cce5;
+  border-radius: 50%;
+
+  background: #ffffff;
+  color: #756985;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Step Text */
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step-title {
+  color: #5e5677;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.step-description {
+  color: #9990a8;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Active Step */
+
+.wizard-step.active .step-number {
+  border-color: #a100ff;
+  background: #a100ff;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(161, 0, 255, 0.1);
+}
+
+.wizard-step.active .step-title {
+  color: #a100ff;
+}
+
+/* Completed Step */
+
+.wizard-step.completed .step-number {
+  border-color: #a100ff;
+  background: #f0d9ff;
+  color: #8f00d9;
+}
+
+.wizard-step.completed .step-title {
+  color: #292531;
+}
+
+/* Connector Line */
+
+.step-connector {
+  flex: 0.4;
+  height: 2px;
+  margin: 0 12px;
+  background: #e5d9ef;
+}
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+  .wizard-steps {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .step-connector {
+    width: 2px;
+    height: 20px;
+    margin: 0 18px;
+  }
+
+  .wizard-step {
+    flex: none;
+  }
+}
+
+.step-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.step-connector {
+  flex: 1;
+  height: 2px;
+  margin: 0 12px;
+  background: #e5d9ef;
+}
+
+.step-connector.completed {
+  background: #a100ff;
+}
+
+.admin-page {
+  min-height: 100vh;
+  margin-left: 198px;
+  padding: 108px 48px 40px;
+  box-sizing: border-box;
+
+  background: linear-gradient(
+    135deg,
+    #faf5ff 0%,
+    #ffffff 60%,
+    #f8f1ff 100%
+  );
+}
+
+.admin-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 38px 48px;
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 1px solid #eadcf4;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(80, 30, 100, 0.06);
+}
+

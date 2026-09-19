@@ -8,8 +8,8 @@ import {
   getCourses,
   removeDocument,
   submitApplication,
-} from "../../services/loanApplicationService";
-import type { LoanApplicationDetail, LookupItem } from "../../types/loanApplication";
+} from "../../../services/loanApplicationService";
+import type { LoanApplicationDetail, LookupItem } from "../../../types/loanApplication";
 
 const STEPS = ["Education", "Loan Details", "Documents", "Review & Submit"] as const;
 type Step = (typeof STEPS)[number];
@@ -191,10 +191,35 @@ export default function NewApplicationWizard({ onDone }: NewApplicationWizardPro
 
   return (
     <div className="wizard">
-      <div className="wizard-steps" role="tablist">
-        {STEPS.map((step, i) => (
-          <div key={step} className={`wizard-step ${i === stepIndex ? "active" : ""} ${i < stepIndex ? "done" : ""}`}>
-            {i + 1}. {step}
+      <div className="wizard-steps">
+        {STEPS.map((stepName, index) => (
+          <div key={stepName} className="step-wrapper">
+            <div
+              className={`wizard-step ${stepIndex === index ? "active" : ""
+                } ${stepIndex > index ? "completed" : ""}`}
+            >
+              <div className="step-number">
+                {stepIndex > index ? "✓" : index + 1}
+              </div>
+
+              <div className="step-content">
+                <span className="step-title">{stepName}</span>
+
+                <span className="step-description">
+                  {index === 0 && "Education details"}
+                  {index === 1 && "Loan information"}
+                  {index === 2 && "Upload documents"}
+                  {index === 3 && "Verify application"}
+                </span>
+              </div>
+            </div>
+
+            {index < STEPS.length - 1 && (
+              <div
+                className={`step-connector ${stepIndex > index ? "completed" : ""
+                  }`}
+              ></div>
+            )}
           </div>
         ))}
       </div>

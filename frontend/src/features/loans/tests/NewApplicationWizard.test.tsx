@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import NewApplicationWizard from "./NewApplicationWizard";
-import * as loanService from "../../services/loanApplicationService";
-import type { LoanApplicationDetail } from "../../types/loanApplication";
+import NewApplicationWizard from "../pages/NewApplicationWizard";
+import * as loanService from "../../../services/loanApplicationService";
+import type { LoanApplicationDetail } from "../../../types/loanApplication";
 
 const COLLEGES = [{ id: 1, name: "BITS Pilani" }];
 const COURSES = [{ id: 1, name: "M.Tech SE" }];

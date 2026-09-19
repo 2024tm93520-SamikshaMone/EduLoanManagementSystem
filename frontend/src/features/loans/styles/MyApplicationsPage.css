@@ -1,0 +1,286 @@
+/* MyApplicationsPage.css
+   Accenture-inspired styling for MyApplicationsPage.tsx
+*/
+
+:root {
+  --accent-purple: #a100ff;
+  --accent-purple-dark: #7800bd;
+  --accent-purple-soft: #f1ddff;
+  --text-primary: #242129;
+  --text-secondary: #6b6380;
+  --border-color: #e9e1f1;
+  --page-background: #ffffff;
+}
+
+/* Main page area beside the fixed employee sidebar */
+.admin-page {
+  min-height: calc(100vh - 74px);
+  margin-left: 205px;
+  padding: 38px 48px 64px;
+  color: var(--text-primary);
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    linear-gradient(135deg, rgba(246, 233, 255, 0.72) 0 13%, transparent 13% 100%),
+    linear-gradient(315deg, rgba(248, 238, 255, 0.78) 0 16%, transparent 16% 100%),
+    var(--page-background);
+}
+
+/* Main white content card */
+.admin-card {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 10px 30px rgba(70, 25, 100, 0.07);
+}
+
+/* Heading and New Application button */
+.master-data-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.master-data-header h1 {
+  position: relative;
+  margin: 0;
+  padding-top: 20px;
+  color: var(--text-primary);
+  font-size: 34px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -1px;
+}
+
+.master-data-header h1::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 4px;
+  border-radius: 8px;
+  background: var(--accent-purple);
+}
+
+.master-data-header button {
+  flex-shrink: 0;
+  min-height: 42px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 7px;
+  background: var(--accent-purple);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.master-data-header button:hover {
+  background: var(--accent-purple-dark);
+  transform: translateY(-1px);
+}
+
+/* Applications table */
+.master-data-table {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  border-spacing: 0;
+  overflow: hidden;
+  background: #ffffff;
+  text-align: left;
+  table-layout: auto;
+}
+
+.master-data-table thead {
+  background: linear-gradient(90deg, #f0ddff 0%, #fbf6ff 100%);
+}
+
+.master-data-table th {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border-color);
+  color: #514766;
+  font-size: 13px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.master-data-table td {
+  padding: 18px;
+  border-bottom: 1px solid #f0ebf5;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.45;
+  vertical-align: middle;
+}
+
+.master-data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.master-data-table tbody tr:hover {
+  background: #fcf8ff;
+}
+
+/* Keep long application numbers and names readable */
+.master-data-table td:first-child {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.master-data-table td:nth-child(2),
+.master-data-table td:nth-child(3) {
+  min-width: 150px;
+}
+
+/* Status badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f0e0ff;
+  color: var(--accent-purple-dark);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Status variants based on status-${app.status.toLowerCase()} */
+.status-submitted,
+.status-pending,
+.status-underreview,
+.status-manualreview {
+  background: #f0e0ff;
+  color: #7800bd;
+}
+
+.status-approved {
+  background: #e3f7ea;
+  color: #187443;
+}
+
+.status-rejected {
+  background: #ffe7eb;
+  color: #b42345;
+}
+
+.status-cancelled {
+  background: #eeeeef;
+  color: #5e5a66;
+}
+
+/* Empty, loading and error states */
+.master-data-empty {
+  margin: 0;
+  padding: 44px 24px;
+  border: 1px dashed #d9c9e8;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  text-align: center;
+  background: #fdfaff;
+}
+
+.admin-card > p[role="status"] {
+  margin: 0;
+  padding: 32px 0;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.form-error {
+  padding: 13px 15px;
+  border: 1px solid #f3c5cf;
+  border-radius: 8px;
+  background: #fff1f3;
+  color: #b42345;
+  font-size: 14px;
+}
+
+/* Existing link-button used for cancel */
+.link-button {
+  margin-top: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--accent-purple-dark);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+/* Responsive behavior */
+@media (max-width: 1100px) {
+  .admin-page {
+    padding: 32px 28px 48px;
+  }
+
+  .admin-card {
+    padding: 26px;
+  }
+
+  .master-data-header h1 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 800px) {
+  .admin-page {
+    margin-left: 0;
+    padding: 92px 20px 40px;
+  }
+
+  .master-data-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .master-data-header button {
+    width: 100%;
+  }
+
+  .master-data-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-page {
+    padding: 82px 12px 28px;
+  }
+
+  .admin-card {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .master-data-header h1 {
+    font-size: 27px;
+  }
+
+  .master-data-table th,
+  .master-data-table td {
+    padding: 13px 12px;
+  }
+}
+.admin-page {
+  margin-left: 198px;
+  padding: 108px 48px 40px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
