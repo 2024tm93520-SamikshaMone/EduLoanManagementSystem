@@ -105,14 +105,14 @@ BEGIN
     (
         'EMP1001',
         'Samiksha Mone',
-        'samiksha@acc.com',
+        'samikshamone6@gmail.com',
         '$2b$10$9YbUuqUOHgaN8IGX5fjxbOzHzd7UlNc2lrEtfrjW0XtudU2w9mD5O',
         'Employee',
         (SELECT Id FROM dbo.Department WHERE Name = 'Engineering'),
         'Software Engineer',
         '2022-01-10',
         65000,
-        '9876543210',
+        '+91 9876543210',
         1
     );
 END;
@@ -426,3 +426,6 @@ SELECT
     @@SERVERNAME AS ServerName;
 GO
 
+SELECT EmployeeCode, Email, PhoneNumber, UpdatedAt
+FROM dbo.Users
+WHERE EmployeeCode = 'EMP1001';

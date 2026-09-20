@@ -14,21 +14,22 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<LoanApplication> LoanApplications => Set<LoanApplication>();
     public DbSet<ApplicationDocument> ApplicationDocuments => Set<ApplicationDocument>();
+    public DbSet<PasswordResetOtp> PasswordResetOtps => Set<PasswordResetOtp>();
 
-    // IAppDbContext explicit surface — IQueryable views + mutation helpers,
-    // so Application-layer handlers depend on this narrow interface, not EF Core directly.
     IQueryable<Department> IAppDbContext.Departments => Departments;
     IQueryable<College> IAppDbContext.Colleges => Colleges;
     IQueryable<Course> IAppDbContext.Courses => Courses;
     IQueryable<User> IAppDbContext.Users => Users;
     IQueryable<LoanApplication> IAppDbContext.LoanApplications => LoanApplications;
     IQueryable<ApplicationDocument> IAppDbContext.ApplicationDocuments => ApplicationDocuments;
+    IQueryable<PasswordResetOtp> IAppDbContext.PasswordResetOtps => PasswordResetOtps;
 
     public void AddDepartment(Department department) => Departments.Add(department);
     public void AddCollege(College college) => Colleges.Add(college);
     public void AddCourse(Course course) => Courses.Add(course);
     public void AddLoanApplication(LoanApplication application) => LoanApplications.Add(application);
     public void AddApplicationDocument(ApplicationDocument document) => ApplicationDocuments.Add(document);
+    public void AddPasswordResetOtp(PasswordResetOtp otp) => PasswordResetOtps.Add(otp);
 
     public void RemoveDepartment(Department department) => Departments.Remove(department);
     public void RemoveCollege(College college) => Colleges.Remove(college);
@@ -49,39 +50,29 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();
             entity.Property(u => u.Role).HasConversion<string>().HasMaxLength(20);
             entity.Property(u => u.MonthlySalary).HasColumnType("decimal(12,2)");
-            entity.HasOne(u => u.Department)
-                  .WithMany()
-                  .HasForeignKey(u => u.DepartmentId)
-                  .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(u => u.Department).WithMany().HasForeignKey(u => u.DepartmentId).OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.ToTable("Department");
-            entity.HasKey(d => d.Id);
+            entity.ToTable("Department"); entity.HasKey(d => d.Id);
             entity.Property(d => d.Name).HasMaxLength(100).IsRequired();
         });
-
         modelBuilder.Entity<College>(entity =>
         {
-            entity.ToTable("College");
-            entity.HasKey(c => c.Id);
+            entity.ToTable("College"); entity.HasKey(c => c.Id);
             entity.Property(c => c.Name).HasMaxLength(200).IsRequired();
             entity.Property(c => c.City).HasMaxLength(100).IsRequired();
         });
-
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.ToTable("Course");
-            entity.HasKey(c => c.Id);
+            entity.ToTable("Course"); entity.HasKey(c => c.Id);
             entity.Property(c => c.Name).HasMaxLength(150).IsRequired();
             entity.Property(c => c.Level).HasMaxLength(30).IsRequired();
         });
-
         modelBuilder.Entity<LoanApplication>(entity =>
         {
-            entity.ToTable("LoanApplication");
-            entity.HasKey(a => a.Id);
+            entity.ToTable("LoanApplication"); entity.HasKey(a => a.Id);
             entity.Property(a => a.ApplicationNumber).HasMaxLength(20).IsRequired();
             entity.HasIndex(a => a.ApplicationNumber).IsUnique();
             entity.Property(a => a.Specialization).HasMaxLength(150);
@@ -89,25 +80,28 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(a => a.RequestedAmount).HasColumnType("decimal(12,2)");
             entity.Property(a => a.EducationPurpose).HasMaxLength(500);
             entity.Property(a => a.Status).HasConversion<string>().HasMaxLength(20);
-
             entity.HasOne(a => a.Employee).WithMany().HasForeignKey(a => a.EmployeeId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(a => a.College).WithMany().HasForeignKey(a => a.CollegeId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(a => a.Course).WithMany().HasForeignKey(a => a.CourseId).OnDelete(DeleteBehavior.Restrict);
         });
-
         modelBuilder.Entity<ApplicationDocument>(entity =>
         {
-            entity.ToTable("ApplicationDocument");
-            entity.HasKey(d => d.Id);
+            entity.ToTable("ApplicationDocument"); entity.HasKey(d => d.Id);
             entity.Property(d => d.DocumentType).HasMaxLength(100).IsRequired();
             entity.Property(d => d.FileName).HasMaxLength(255).IsRequired();
             entity.Property(d => d.StoredFileName).HasMaxLength(255).IsRequired();
             entity.Property(d => d.ContentType).HasMaxLength(100).IsRequired();
-
-            entity.HasOne(d => d.Application)
-                  .WithMany(a => a.Documents)
-                  .HasForeignKey(d => d.ApplicationId)
-                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(d => d.Application).WithMany(a => a.Documents).HasForeignKey(d => d.ApplicationId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<PasswordResetOtp>(entity =>
+        {
+            entity.ToTable("PasswordResetOtp");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Email).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.OtpHash).HasMaxLength(255).IsRequired();
+            entity.Property(x => x.ResetTokenHash).HasMaxLength(64);
+            entity.HasIndex(x => new { x.Email, x.CreatedAtUtc });
+            entity.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

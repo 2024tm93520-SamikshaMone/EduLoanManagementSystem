@@ -10,6 +10,7 @@ public interface IUserRepository
 
 public interface IPasswordHasher
 {
+    string Hash(string password);
     bool Verify(string password, string passwordHash);
 }
 
@@ -19,16 +20,17 @@ public interface ITokenGenerator
     string GenerateRefreshToken();
 }
 
-/// Wraps EF Core's SaveChangesAsync so Application-layer handlers never
-/// depend on DbContext directly (keeps CQRS handlers unit-testable without a real DB).
 public interface IUnitOfWork
 {
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
 
-/// Exposes the currently authenticated user's id (from JWT claims), so
-/// Application-layer handlers can answer "get MY profile" without touching HttpContext directly.
 public interface ICurrentUserService
 {
     Guid? UserId { get; }
+}
+
+public interface IEmailService
+{
+    Task SendAsync(string recipientEmail, string subject, string htmlBody, CancellationToken ct = default);
 }
