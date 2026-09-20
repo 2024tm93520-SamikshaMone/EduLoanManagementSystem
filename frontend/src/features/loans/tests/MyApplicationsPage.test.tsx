@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import MyApplicationsPage from "./pages/MyApplicationsPage";
-import * as loanService from "../../services/loanApplicationService";
-import type { LoanApplicationSummary } from "../../types/loanApplication";
+import * as loanService from "../../../services/loanApplicationService";
+import type { LoanApplicationSummary } from "../../../types/loanApplication";
+import MyApplicationsPage from "../pages/MyApplicationsPage"
+
 
 const SAMPLE_APPLICATIONS: LoanApplicationSummary[] = [
   {

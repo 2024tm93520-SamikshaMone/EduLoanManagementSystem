@@ -13,6 +13,7 @@ import MyApplicationsPage from "./features/loans/pages/MyApplicationsPage";
 
 import EmployeeNav from "./components/EmployeeNav";
 import NewApplicationPage from "./features/loans/pages/NewApplicationPage";
+import PasswordPage from "./features/auth/PasswordPage";
 
 function LoginRoute() {
   const navigate = useNavigate();
@@ -62,6 +63,10 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginRoute />} />
+        
+        <Route path="/forgot-password" element={<PasswordPage />} />
+
+        <Route path="/employee/change-password" element={<PasswordPage />} />
 
         <Route
           path="/employee/dashboard"

@@ -116,10 +116,7 @@ export default function ProfilePage() {
       // The selected country code is displayed and retained in the UI.
       const updated = await updateMyProfile(phoneInput);
 
-      setProfile({
-        ...updated,
-        phoneNumber: `${countryCode} ${phoneInput}`,
-      });
+      setProfile(updated);
       setIsEditing(false);
       setSaveSuccess(true);
     } catch (err) {
@@ -258,7 +255,11 @@ export default function ProfilePage() {
             <div className="phone-display-row">
               <div>
                 <span className="phone-label">Phone Number</span>
-                <strong>{profile.phoneNumber ?? "Not set"}</strong>
+                <strong>
+                  {profile.phoneNumber
+                    ? `${countryCode} ${profile.phoneNumber}`
+                    : "Not set"}
+                </strong>
               </div>
             </div>
           ) : (
