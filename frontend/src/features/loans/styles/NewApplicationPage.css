@@ -185,6 +185,41 @@
    Buttons
    ========================================= */
 
+/* Master Data tab buttons */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+/* Individual tab buttons */
+.admin-tabs .admin-tab {
+  min-height: 44px;
+  padding: 11px 28px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #a100ff, #9200e8);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-tabs .admin-tab:hover {
+  box-shadow: 0 5px 14px rgba(161, 0, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.admin-tabs .admin-tab:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .admin-card button {
   min-height: 44px;
   padding: 11px 28px;
