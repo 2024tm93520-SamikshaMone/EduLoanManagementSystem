@@ -119,6 +119,24 @@
   gap: 12px;
 }
 
+/* Document upload fields - side by side */
+.document-upload-fields {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+
+.document-upload-fields input[type="text"] {
+  flex: 1;
+  width: auto;
+}
+
+.document-upload-fields input[type="file"] {
+  flex: 1;
+  width: auto;
+}
+
 /* Form field containers */
 
 .admin-card form > div {
@@ -288,6 +306,7 @@
   font-weight: 600;
 
   cursor: pointer;
+  margin-left: 10px;
 }
 
 .admin-card .link-button:hover {
@@ -399,7 +418,7 @@
 .wizard-panel input,
 .wizard-panel select,
 .wizard-panel textarea {
-  width: 100%;
+  width: auto;
   min-height: 46px;
   padding: 11px 14px;
   box-sizing: border-box;
@@ -734,3 +753,53 @@
   box-shadow: 0 8px 24px rgba(80, 30, 100, 0.06);
 }
 
+
+
+/* =========================================
+   DOCUMENT UPLOAD LAYOUT FIX
+   ========================================= */
+
+/*
+   The Documents form currently contains two direct input elements
+   followed by the Add button. Use CSS Grid so the two inputs appear
+   side by side without changing the TSX structure.
+*/
+
+.document-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Document Type and File inputs */
+.admin-card .document-form > input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Keep the Add button below the two inputs */
+.admin-card .document-form > button {
+  grid-column: 1;
+  justify-self: start;
+  margin-top: 0;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .document-form {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-card .document-form > input,
+  .admin-card .document-form > button {
+    grid-column: 1;
+  }
+
+  .admin-card .document-form > button {
+    justify-self: start;
+  }
+}

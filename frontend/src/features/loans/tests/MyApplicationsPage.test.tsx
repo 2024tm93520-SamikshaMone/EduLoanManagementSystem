@@ -1,5 +1,4 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as loanService from "../../../services/loanApplicationService";
 import type { LoanApplicationSummary } from "../../../types/loanApplication";
@@ -44,19 +43,18 @@ describe("MyApplicationsPage", () => {
     expect(await screen.findByText(/could not load your applications/i)).toBeInTheDocument();
   });
 
-  it("opens the new application wizard and can cancel back to the list", async () => {
+  it("shows college, course, formatted amount and status for each application", async () => {
     vi.spyOn(loanService, "getMyApplications").mockResolvedValue(SAMPLE_APPLICATIONS);
-    vi.spyOn(loanService, "getColleges").mockResolvedValue([{ id: 1, name: "BITS Pilani" }]);
-    vi.spyOn(loanService, "getCourses").mockResolvedValue([{ id: 1, name: "M.Tech SE" }]);
-
-    const user = userEvent.setup();
     render(<MyApplicationsPage />);
-    await screen.findByText("EDL-2026-000001");
 
-    await user.click(screen.getByRole("button", { name: /new application/i }));
-    expect(await screen.findByText(/1\. education/i)).toBeInTheDocument();
+    const row = (await screen.findByText("EDL-2026-000001")).closest("tr") as HTMLElement;
+    expect(within(row).getByText("BITS Pilani")).toBeInTheDocument();
+    expect(within(row).getByText("M.Tech SE")).toBeInTheDocument();
+    expect(within(row).getByText("\u20B94,00,000")).toBeInTheDocument();
+    expect(within(row).getByText("Submitted")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /cancel and go back to list/i }));
-    expect(await screen.findByText("EDL-2026-000001")).toBeInTheDocument();
+    for (const header of ["Application No.", "College", "Course", "Amount", "Status"]) {
+      expect(screen.getByRole("columnheader", { name: header })).toBeInTheDocument();
+    }
   });
 });

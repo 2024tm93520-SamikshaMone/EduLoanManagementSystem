@@ -13,7 +13,7 @@ describe("LoginPage", () => {
   it("renders email and password fields and a submit button", () => {
     render(<LoginPage />);
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
   });
 
@@ -32,7 +32,7 @@ describe("LoginPage", () => {
     render(<LoginPage />);
 
     await user.type(screen.getByLabelText(/email/i), "not-an-email");
-    await user.type(screen.getByLabelText(/password/i), "somepassword");
+    await user.type(screen.getByLabelText("Password"), "somepassword");
     await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     expect(await screen.findByText(/enter a valid email address/i)).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe("LoginPage", () => {
     render(<LoginPage onLoginSuccess={onLoginSuccess} />);
 
     await user.type(screen.getByLabelText(/email/i), "samiksha@acc.com");
-    await user.type(screen.getByLabelText(/password/i), "password1");
+    await user.type(screen.getByLabelText("Password"), "password1");
     await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() => {
@@ -68,7 +68,7 @@ describe("LoginPage", () => {
     render(<LoginPage />);
 
     await user.type(screen.getByLabelText(/email/i), "samiksha@acc.com");
-    await user.type(screen.getByLabelText(/password/i), "wrongpassword");
+    await user.type(screen.getByLabelText("Password"), "wrongpassword");
     await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     expect(await screen.findByText(/invalid email or password/i)).toBeInTheDocument();
@@ -85,7 +85,7 @@ describe("LoginPage", () => {
     render(<LoginPage />);
 
     await user.type(screen.getByLabelText(/email/i), "samiksha@acc.com");
-    await user.type(screen.getByLabelText(/password/i), "password1");
+    await user.type(screen.getByLabelText("Password"), "password1");
     await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     expect(screen.getByRole("button", { name: /signing in/i })).toBeDisabled();

@@ -301,25 +301,32 @@ export default function NewApplicationWizard({ onDone }: NewApplicationWizardPro
       {currentStep === "Documents" && application && (
         <div className="wizard-panel">
           <p className="wizard-hint">Add at least one supporting document (e.g. Admission Letter, Fee Receipt). PDF, JPG, or PNG, up to 5 MB.</p>
+
+          {docError && <div role="alert" className="form-error">{docError}</div>}
           <form onSubmit={handleAddDocument} className="document-form">
-            <input
-              aria-label="Document Type"
-              placeholder="Document type (e.g. Admission Letter)"
-              value={docType}
-              onChange={(e) => setDocType(e.target.value)}
-            />
-            <input
-              aria-label="File"
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
-            />
+
+            {/* Document Type and File - Side by Side */}
+            <div className="document-upload-fields">
+              <input
+                aria-label="Document Type"
+                placeholder="Document type (e.g. Admission Letter)"
+                value={docType}
+                onChange={(e) => setDocType(e.target.value)}
+              />
+
+              <input
+                aria-label="File"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
+              />
+            </div>
+
+            {/* Add Button */}
             <button type="submit" disabled={isUploadingDoc}>
               {isUploadingDoc ? "Uploading..." : "Add"}
             </button>
           </form>
-          {docError && <div role="alert" className="form-error">{docError}</div>}
-
           {application.documents.length === 0 ? (
             <p className="master-data-empty">No documents added yet.</p>
           ) : (

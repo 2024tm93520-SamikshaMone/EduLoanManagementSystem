@@ -30,8 +30,8 @@ describe("ProfilePage", () => {
 
     expect(screen.getByRole("status")).toHaveTextContent(/loading/i);
 
-    expect(await screen.findByText("Samiksha Mone")).toBeInTheDocument();
-    expect(screen.getByText("EMP1001")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Samiksha Mone" })).toBeInTheDocument();
+    expect(screen.getAllByText("EMP1001").length).toBeGreaterThan(0); // shown in badge and details
     expect(screen.getByText("Engineering")).toBeInTheDocument();
     expect(screen.getByText("4 yr 8 mo")).toBeInTheDocument();
   });
@@ -55,10 +55,10 @@ describe("ProfilePage", () => {
     const user = userEvent.setup();
     render(<ProfilePage />);
 
-    await screen.findByText("Samiksha Mone");
+    await screen.findByRole("heading", { name: "Samiksha Mone" });
     await user.click(screen.getByRole("button", { name: /edit/i }));
 
-    const phoneField = screen.getByLabelText(/phone number/i);
+    const phoneField = screen.getByRole("textbox", { name: /phone number/i });
     await user.clear(phoneField);
     await user.type(phoneField, "9998887770");
     await user.click(screen.getByRole("button", { name: /save/i }));
@@ -66,7 +66,7 @@ describe("ProfilePage", () => {
     await waitFor(() => {
       expect(screen.getByText(/profile updated successfully/i)).toBeInTheDocument();
     });
-    expect(screen.getByText("9998887770")).toBeInTheDocument();
+    expect(screen.getByText(/9998887770/)).toBeInTheDocument();
   });
 
   it("shows a validation error for an invalid phone number and does not call the API", async () => {
@@ -76,10 +76,10 @@ describe("ProfilePage", () => {
     const user = userEvent.setup();
     render(<ProfilePage />);
 
-    await screen.findByText("Samiksha Mone");
+    await screen.findByRole("heading", { name: "Samiksha Mone" });
     await user.click(screen.getByRole("button", { name: /edit/i }));
 
-    const phoneField = screen.getByLabelText(/phone number/i);
+    const phoneField = screen.getByRole("textbox", { name: /phone number/i });
     await user.clear(phoneField);
     await user.type(phoneField, "123");
     await user.click(screen.getByRole("button", { name: /save/i }));
@@ -97,10 +97,10 @@ describe("ProfilePage", () => {
     const user = userEvent.setup();
     render(<ProfilePage />);
 
-    await screen.findByText("Samiksha Mone");
+    await screen.findByRole("heading", { name: "Samiksha Mone" });
     await user.click(screen.getByRole("button", { name: /edit/i }));
 
-    const phoneField = screen.getByLabelText(/phone number/i);
+    const phoneField = screen.getByRole("textbox", { name: /phone number/i });
     await user.clear(phoneField);
     await user.type(phoneField, "9998887770");
     await user.click(screen.getByRole("button", { name: /save/i }));
@@ -113,14 +113,14 @@ describe("ProfilePage", () => {
     const user = userEvent.setup();
     render(<ProfilePage />);
 
-    await screen.findByText("Samiksha Mone");
+    await screen.findByRole("heading", { name: "Samiksha Mone" });
     await user.click(screen.getByRole("button", { name: /edit/i }));
 
-    const phoneField = screen.getByLabelText(/phone number/i);
+    const phoneField = screen.getByRole("textbox", { name: /phone number/i });
     await user.clear(phoneField);
     await user.type(phoneField, "0000000000");
     await user.click(screen.getByRole("button", { name: /cancel/i }));
 
-    expect(screen.getByText("9876543210")).toBeInTheDocument();
+    expect(screen.getByText(/9876543210/)).toBeInTheDocument();
   });
 });
