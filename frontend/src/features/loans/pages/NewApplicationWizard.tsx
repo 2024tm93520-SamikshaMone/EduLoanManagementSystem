@@ -183,7 +183,14 @@ export default function NewApplicationWizard({ onDone }: NewApplicationWizardPro
       await submitApplication(application.id);
       onDone?.();
     } catch (err) {
-      setFinalError(err instanceof LoanApplicationError ? err.message : "Could not submit application.");
+      if (err instanceof LoanApplicationError) {
+        // Eligibility failures come back with multiple messages (one per failed rule) —
+        // join them into one string so this stays a simple single-message display,
+        // same shape as every other error banner in this component.
+        setFinalError(err.errors.length > 0 ? err.errors.join(" ") : err.message);
+      } else {
+        setFinalError("Could not submit application.");
+      }
     } finally {
       setIsFinalSubmitting(false);
     }
@@ -301,32 +308,25 @@ export default function NewApplicationWizard({ onDone }: NewApplicationWizardPro
       {currentStep === "Documents" && application && (
         <div className="wizard-panel">
           <p className="wizard-hint">Add at least one supporting document (e.g. Admission Letter, Fee Receipt). PDF, JPG, or PNG, up to 5 MB.</p>
-
-          {docError && <div role="alert" className="form-error">{docError}</div>}
           <form onSubmit={handleAddDocument} className="document-form">
-
-            {/* Document Type and File - Side by Side */}
-            <div className="document-upload-fields">
-              <input
-                aria-label="Document Type"
-                placeholder="Document type (e.g. Admission Letter)"
-                value={docType}
-                onChange={(e) => setDocType(e.target.value)}
-              />
-
-              <input
-                aria-label="File"
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
-              />
-            </div>
-
-            {/* Add Button */}
+            <input
+              aria-label="Document Type"
+              placeholder="Document type (e.g. Admission Letter)"
+              value={docType}
+              onChange={(e) => setDocType(e.target.value)}
+            />
+            <input
+              aria-label="File"
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
+            />
             <button type="submit" disabled={isUploadingDoc}>
               {isUploadingDoc ? "Uploading..." : "Add"}
             </button>
           </form>
+          {docError && <div role="alert" className="form-error">{docError}</div>}
+
           {application.documents.length === 0 ? (
             <p className="master-data-empty">No documents added yet.</p>
           ) : (

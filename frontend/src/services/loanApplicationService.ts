@@ -11,7 +11,13 @@ const API_BASE_URL =
   (import.meta as ImportMeta & { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL ??
   "https://localhost:7001/api/v1";
 
-export class LoanApplicationError extends Error {}
+export class LoanApplicationError extends Error {
+  errors: string[];
+  constructor(message: string, errors: string[] = []) {
+    super(message);
+    this.errors = errors;
+  }
+}
 
 function getAuthHeader(): Record<string, string> {
   const token = sessionStorage.getItem("eduloan_access_token");
@@ -21,7 +27,7 @@ function getAuthHeader(): Record<string, string> {
 async function handle<T>(response: Response): Promise<T> {
   const body: ApiResponse<T> = await response.json();
   if (!response.ok || !body.success || body.data === null) {
-    throw new LoanApplicationError(body.message || "Something went wrong. Please try again.");
+    throw new LoanApplicationError(body.message || "Something went wrong. Please try again.", body.errors);
   }
   return body.data;
 }

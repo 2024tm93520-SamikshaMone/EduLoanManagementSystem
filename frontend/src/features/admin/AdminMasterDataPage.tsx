@@ -1,12 +1,14 @@
 import { useState } from "react";
 import MasterDataTable from "./MasterDataTable";
+import EligibilityRulesTable from "./EligibilityRulesTable";
 
-type Tab = "departments" | "colleges" | "courses";
+type Tab = "departments" | "colleges" | "courses" | "eligibilityRules";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "departments", label: "Departments" },
   { id: "colleges", label: "Colleges" },
   { id: "courses", label: "Courses" },
+  { id: "eligibilityRules", label: "Eligibility Rules" },
 ];
 
 export default function AdminMasterDataPage() {
@@ -67,6 +69,8 @@ export default function AdminMasterDataPage() {
             ]}
           />
         )}
+
+        {activeTab === "eligibilityRules" && <EligibilityRulesTable />}
       </div>
     </div>
   );
