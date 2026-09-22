@@ -1,0 +1,181 @@
+.admin-employees-page {
+  min-height: 100vh;
+  margin-left: 212px;
+  padding-top: 72px;
+  box-sizing: border-box;
+  background: #f7f7f9;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.admin-employees-inner {
+  padding: 28px 32px 50px;
+}
+
+.admin-employees-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.admin-employees-header h1 {
+  margin: 0;
+  color: #211f26;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.admin-employees-header p {
+  margin: 10px 0 0;
+  color: #69617f;
+  font-size: 15px;
+}
+
+.admin-employees-count {
+  padding: 9px 14px;
+  border: 1px solid #dfd1e8;
+  border-radius: 8px;
+  background: #fff;
+  color: #7b00bd;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-employees-table-card {
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid #ebe5f2;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(33, 31, 38, 0.04);
+}
+
+.admin-employees-table {
+  width: 100%;
+  min-width: 950px;
+  border-collapse: collapse;
+}
+
+.admin-employees-table th {
+  padding: 15px 16px;
+  background: #faf7fc;
+  border-bottom: 1px solid #ebe5f2;
+  text-align: left;
+  color: #5f526f;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-employees-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f0ebf4;
+  color: #29252f;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.admin-employees-table tbody tr:hover {
+  background: #fcf9ff;
+}
+
+.admin-employees-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-employee-code {
+  color: #7b00bd;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-employee-name {
+  color: #29252f;
+  font-weight: 700;
+}
+
+.admin-employee-email {
+  margin-top: 4px;
+  color: #81778d;
+  font-size: 12px;
+}
+
+.admin-employee-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 65px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-employee-status.active {
+  background: #e7f7ed;
+  color: #16733d;
+}
+
+.admin-employee-status.inactive {
+  background: #fdeaea;
+  color: #b42318;
+}
+
+.admin-employees-state {
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #69617f;
+  font-size: 14px;
+}
+
+.admin-employees-error {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #eadcf4;
+  border-radius: 12px;
+}
+
+.admin-employees-error strong {
+  display: block;
+  color: #c62828;
+  font-size: 16px;
+}
+
+.admin-employees-error p {
+  margin: 8px 0 16px;
+  color: #69617f;
+  font-size: 14px;
+}
+
+.admin-employees-error button {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 7px;
+  background: #a100ff;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-employees-error button:hover {
+  background: #7b00bd;
+}
+
+@media (max-width: 900px) {
+  .admin-employees-page {
+    margin-left: 0;
+  }
+
+  .admin-employees-inner {
+    padding: 24px 20px 40px;
+  }
+
+  .admin-employees-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+}

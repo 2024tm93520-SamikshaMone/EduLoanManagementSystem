@@ -5,8 +5,9 @@ import {
   deleteMasterDataItem,
   getMasterDataList,
   updateMasterDataItem,
-} from "../../services/masterDataService";
-import type { MasterDataEntity } from "../../types/masterData";
+} from "../../../services/masterDataService";
+import type { MasterDataEntity } from "../../../types/masterData";
+import "../styles/AdminMasterDataPage.css";
 
 export interface MasterDataColumn {
   key: string;
@@ -126,29 +127,57 @@ export default function MasterDataTable({ title, entity, columns }: MasterDataTa
   const showForm = isAdding || editingId !== null;
 
   return (
-    <div className="master-data-section">
-      <div className="master-data-header">
+    <div className="admin-master-data-table-section">
+
+      <div className="admin-master-data-table-header">
         <h2>{title}</h2>
+
         {!showForm && (
-          <button type="button" className="secondary-button" onClick={startAdd}>
+          <button
+            type="button"
+            className="admin-master-data-add-button"
+            onClick={startAdd}
+          >
             + Add {title.slice(0, -1)}
           </button>
         )}
       </div>
 
-      {deleteError && <div role="alert" className="form-error">{deleteError}</div>}
+      {deleteError && (
+        <div
+          role="alert"
+          className="admin-master-data-error"
+        >
+          {deleteError}
+        </div>
+      )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="master-data-form" noValidate>
+        <form
+          onSubmit={handleSubmit}
+          className="admin-master-data-form"
+          noValidate
+        >
           {columns.map((col) => (
-            <div className="form-group" key={col.key}>
-              <label htmlFor={col.key}>{col.label}</label>
+            <div
+              className="admin-master-data-form-group"
+              key={col.key}
+            >
+              <label htmlFor={col.key}>
+                {col.label}
+              </label>
+
               {col.type === "boolean" ? (
                 <input
                   id={col.key}
                   type="checkbox"
                   checked={Boolean(formValues[col.key])}
-                  onChange={(e) => setFormValues((v) => ({ ...v, [col.key]: e.target.checked }))}
+                  onChange={(e) =>
+                    setFormValues((v) => ({
+                      ...v,
+                      [col.key]: e.target.checked,
+                    }))
+                  }
                 />
               ) : (
                 <input
@@ -158,7 +187,10 @@ export default function MasterDataTable({ title, entity, columns }: MasterDataTa
                   onChange={(e) =>
                     setFormValues((v) => ({
                       ...v,
-                      [col.key]: col.type === "number" ? Number(e.target.value) : e.target.value,
+                      [col.key]:
+                        col.type === "number"
+                          ? Number(e.target.value)
+                          : e.target.value,
                     }))
                   }
                 />
@@ -166,13 +198,30 @@ export default function MasterDataTable({ title, entity, columns }: MasterDataTa
             </div>
           ))}
 
-          {formError && <div role="alert" className="form-error">{formError}</div>}
+          {formError && (
+            <div
+              role="alert"
+              className="admin-master-data-error"
+            >
+              {formError}
+            </div>
+          )}
 
-          <div className="master-data-form-actions">
-            <button type="submit" disabled={isSaving}>
+          <div className="admin-master-data-form-actions">
+            <button
+              type="submit"
+              className="admin-master-data-save-button"
+              disabled={isSaving}
+            >
               {isSaving ? "Saving..." : "Save"}
             </button>
-            <button type="button" className="link-button" onClick={cancelForm} disabled={isSaving}>
+
+            <button
+              type="button"
+              className="admin-master-data-cancel-button"
+              onClick={cancelForm}
+              disabled={isSaving}
+            >
               Cancel
             </button>
           </div>
@@ -180,46 +229,75 @@ export default function MasterDataTable({ title, entity, columns }: MasterDataTa
       )}
 
       {isLoading ? (
-        <p role="status">Loading {title.toLowerCase()}...</p>
+        <p
+          role="status"
+          className="admin-master-data-state"
+        >
+          Loading {title.toLowerCase()}...
+        </p>
       ) : loadError ? (
-        <div role="alert" className="form-error">{loadError}</div>
+        <div
+          role="alert"
+          className="admin-master-data-error"
+        >
+          {loadError}
+        </div>
       ) : items.length === 0 ? (
-        <p className="master-data-empty">No {title.toLowerCase()} yet.</p>
+        <p className="admin-master-data-empty">
+          No {title.toLowerCase()} yet.
+        </p>
       ) : (
-        <table className="master-data-table">
-          <thead>
-            <tr>
-              {columns.map((col) => (
-                <th key={col.key}>{col.label}</th>
-              ))}
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item.id}>
+        <div className="admin-master-data-table-wrapper">
+          <table className="admin-master-data-table">
+            <thead>
+              <tr>
                 {columns.map((col) => (
-                  <td key={col.key}>
-                    {col.type === "boolean" ? (item[col.key] ? "Yes" : "No") : String(item[col.key])}
-                  </td>
+                  <th key={col.key}>
+                    {col.label}
+                  </th>
                 ))}
-                <td>
-                  <button type="button" className="link-button" onClick={() => startEdit(item)}>
-                    Edit
-                  </button>{" "}
-                  <button
-                    type="button"
-                    className="link-button danger"
-                    onClick={() => handleDelete(item.id)}
-                    disabled={deletingId === item.id}
-                  >
-                    {deletingId === item.id ? "Deleting..." : "Delete"}
-                  </button>
-                </td>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.id}>
+                  {columns.map((col) => (
+                    <td key={col.key}>
+                      {col.type === "boolean"
+                        ? item[col.key]
+                          ? "Yes"
+                          : "No"
+                        : String(item[col.key])}
+                    </td>
+                  ))}
+
+                  <td className="admin-master-data-actions">
+                    <button
+                      type="button"
+                      className="admin-master-data-action-button"
+                      onClick={() => startEdit(item)}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      className="admin-master-data-action-button admin-master-data-delete-button"
+                      onClick={() => handleDelete(item.id)}
+                      disabled={deletingId === item.id}
+                    >
+                      {deletingId === item.id
+                        ? "Deleting..."
+                        : "Delete"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

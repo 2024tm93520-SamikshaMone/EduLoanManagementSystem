@@ -1,0 +1,471 @@
+/* =========================================================
+   ADMIN MASTER DATA PAGE
+   Completely isolated from Employee portal
+   ========================================================= */
+
+.admin-master-data-page,
+.admin-master-data-page *,
+.admin-master-data-table-section,
+.admin-master-data-table-section * {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================================================
+   PAGE SHELL
+   ========================================================= */
+
+.admin-master-data-page {
+  min-height: 100vh;
+  margin-left: 212px;
+  padding-top: 72px;
+  box-sizing: border-box;
+
+  background: linear-gradient(135deg, #fbf6ff 0%, #ffffff 55%, #faf4ff 100%);
+
+  color: #29252f;
+}
+
+/* =========================================================
+   MAIN WHITE CARD
+   ========================================================= */
+
+.admin-master-data-card {
+  width: calc(100% - 72px);
+  max-width: 1100px;
+  margin: 36px auto 50px;
+  padding: 34px 46px 38px;
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 1px solid #eadcf4;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(91, 36, 128, 0.07);
+}
+
+/* =========================================================
+   PAGE TITLE
+   ========================================================= */
+
+.admin-master-data-heading {
+  margin-bottom: 30px;
+}
+
+.admin-master-data-accent {
+  display: block;
+  width: 42px;
+  height: 4px;
+  margin-bottom: 13px;
+  border-radius: 3px;
+  background: #a100ff;
+}
+
+.admin-master-data-heading h1 {
+  margin: 0;
+  color: #29252f;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+
+.admin-master-data-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 22px 0 34px;
+}
+
+.admin-master-data-tab {
+  min-width: 125px;
+  height: 42px;
+  padding: 0 22px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #dfd1e8;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #5f526f;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.admin-master-data-tab:hover {
+  background: #faf4ff;
+  color: #7b00bd;
+  border-color: #cfa8e8;
+}
+
+.admin-master-data-tab.active {
+  background: #a100ff;
+  color: #ffffff;
+  border-color: #a100ff;
+  box-shadow: 0 3px 8px rgba(161, 0, 255, 0.18);
+}
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.admin-master-data-content,
+.admin-master-data-table-section {
+  width: 100%;
+}
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.admin-master-data-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.admin-master-data-table-header h2 {
+  margin: 0;
+  color: #29252f;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   ADD BUTTON
+   ========================================================= */
+
+.admin-master-data-add-button {
+  min-width: 120px;
+  height: 42px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 8px;
+  background: #a100ff;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-master-data-add-button:hover {
+  background: #8500d4;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.admin-master-data-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #eadcf4;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.admin-master-data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: auto;
+  color: #29252f;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-master-data-table thead {
+  background: linear-gradient(90deg, #eedcff, #f7efff);
+}
+
+.admin-master-data-table th {
+  height: 44px;
+  padding: 0 16px;
+  color: #514667;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid #eadcf4;
+  box-sizing: border-box;
+}
+
+.admin-master-data-table td {
+  height: 64px;
+  padding: 0 16px;
+  background: #ffffff;
+  color: #29252f;
+  font-family: inherit;
+  font-size: 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid #eee7f2;
+  box-sizing: border-box;
+}
+
+.admin-master-data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-master-data-table tbody tr:hover td {
+  background: #fcf8ff;
+}
+
+.admin-master-data-table tbody td:first-child {
+  font-weight: 600;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.admin-master-data-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-master-data-action-button {
+  display: inline;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: #a100ff;
+  font-family: inherit;
+  padding: 4px 0;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-master-data-action-button:hover {
+  color: #7b00bd;
+  text-decoration: underline;
+}
+
+.admin-master-data-delete-button {
+  color: #c62828;
+}
+
+.admin-master-data-delete-button:hover {
+  color: #b71c1c;
+}
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.admin-master-data-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 28px;
+  row-gap: 20px;
+  width: 100%;
+  margin: 0 0 30px;
+  padding: 24px;
+  box-sizing: border-box;
+  border: 1px solid #eadcf4;
+  border-radius: 12px;
+  background: #fcf9ff;
+}
+
+.admin-master-data-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.admin-master-data-form-group label {
+  color: #5d5270;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-master-data-form-group input[type="text"],
+.admin-master-data-form-group input[type="number"],
+.admin-master-data-form-group select {
+  width: 100%;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 13px;
+  border: 1px solid #dacbe5;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #29252f;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.admin-master-data-form-group input[type="text"]:focus,
+.admin-master-data-form-group input[type="number"]:focus,
+.admin-master-data-form-group select:focus {
+  border-color: #a100ff;
+  box-shadow: 0 0 0 3px rgba(161, 0, 255, 0.08);
+}
+
+/* =========================================================
+   CHECKBOX
+   ========================================================= */
+
+.admin-master-data-checkbox-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-master-data-checkbox-group input[type="checkbox"],
+.admin-master-data-form-group > input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: #a100ff;
+  cursor: pointer;
+}
+
+/* =========================================================
+   FORM ACTIONS
+   ========================================================= */
+
+.admin-master-data-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.admin-master-data-save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  height: 42px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 8px;
+  background: #a100ff;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-master-data-save-button:hover {
+  background: #8500d4;
+}
+
+.admin-master-data-save-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-master-data-cancel-button {
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: #9400e8;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-master-data-cancel-button:hover {
+  text-decoration: underline;
+}
+
+/* =========================================================
+   ERROR / EMPTY / LOADING
+   ========================================================= */
+
+.admin-master-data-error {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid #f4cccc;
+  border-radius: 7px;
+  background: #fff3f3;
+  color: #c62828;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-master-data-state,
+.admin-master-data-empty {
+  margin: 0;
+  padding: 30px 0;
+  color: #6c6178;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .admin-master-data-page {
+    margin-left: 0;
+    padding: 90px 28px 40px;
+  }
+
+  .admin-master-data-card {
+    width: 100%;
+    padding: 34px 30px;
+  }
+
+  .admin-master-data-form {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-master-data-form-actions {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 650px) {
+  .admin-master-data-page {
+    padding: 80px 16px 30px;
+  }
+
+  .admin-master-data-card {
+    padding: 28px 18px;
+  }
+
+  .admin-master-data-heading h1 {
+    font-size: 27px;
+  }
+
+  .admin-master-data-table-header {
+    align-items: flex-start;
+    gap: 16px;
+    flex-direction: column;
+  }
+
+  .admin-master-data-add-button {
+    width: 100%;
+  }
+}

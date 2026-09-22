@@ -1,0 +1,167 @@
+.admin-loan-applications-page {
+  min-height: 100vh;
+  margin-left: 212px;
+  padding-top: 72px;
+  box-sizing: border-box;
+  background: #f7f7f9;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.admin-loan-applications-inner {
+  padding: 28px 32px 50px;
+}
+
+.admin-loan-applications-header {
+  margin-bottom: 24px;
+}
+
+.admin-loan-applications-header h1 {
+  margin: 0;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 700;
+  color: #211f26;
+}
+
+.admin-loan-applications-header p {
+  margin: 10px 0 0;
+  font-size: 15px;
+  color: #69617f;
+}
+
+.admin-loan-table-card {
+  background: #fff;
+  border: 1px solid #ebe5f2;
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: 0 4px 16px rgba(33, 31, 38, 0.04);
+}
+
+.admin-loan-table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+}
+
+.admin-loan-table th {
+  padding: 15px 16px;
+  background: #faf7fc;
+  border-bottom: 1px solid #ebe5f2;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5f526f;
+  white-space: nowrap;
+}
+
+.admin-loan-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f0ebf4;
+  font-size: 13px;
+  color: #29252f;
+  vertical-align: middle;
+}
+
+.admin-loan-table tbody tr:hover {
+  background: #fcf9ff;
+}
+
+.admin-loan-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.application-number {
+  color: #7b00bd !important;
+  font-weight: 700;
+}
+
+.employee-name {
+  font-weight: 700;
+  color: #29252f;
+}
+
+.employee-code {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #81778d;
+}
+
+.admin-loan-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-loan-status.submitted {
+  background: #fff4d8;
+  color: #8a6200;
+}
+
+.admin-loan-status.approved {
+  background: #e7f7ed;
+  color: #16733d;
+}
+
+.admin-loan-status.rejected {
+  background: #fdeaea;
+  color: #b42318;
+}
+
+.admin-loan-view-button {
+  border: none;
+  background: transparent;
+  color: #a100ff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.admin-loan-view-button:hover {
+  color: #7b00bd;
+  text-decoration: underline;
+}
+
+.admin-loan-state {
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #69617f;
+  font-size: 14px;
+}
+
+.admin-loan-error {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #eadcf4;
+  border-radius: 12px;
+}
+
+.admin-loan-error strong {
+  display: block;
+  color: #c62828;
+  font-size: 16px;
+}
+
+.admin-loan-error p {
+  margin: 8px 0 16px;
+  color: #69617f;
+  font-size: 14px;
+}
+
+.admin-loan-error button {
+  border: none;
+  border-radius: 7px;
+  padding: 9px 16px;
+  background: #a100ff;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
