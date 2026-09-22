@@ -15,6 +15,8 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<LoanApplication> LoanApplications => Set<LoanApplication>();
     public DbSet<ApplicationDocument> ApplicationDocuments => Set<ApplicationDocument>();
     public DbSet<PasswordResetOtp> PasswordResetOtps => Set<PasswordResetOtp>();
+    public DbSet<EligibilityRule> EligibilityRules => Set<EligibilityRule>();
+    public DbSet<RuleEvaluationResult> RuleEvaluationResults => Set<RuleEvaluationResult>();
 
     IQueryable<Department> IAppDbContext.Departments => Departments;
     IQueryable<College> IAppDbContext.Colleges => Colleges;
@@ -23,6 +25,8 @@ public class AppDbContext : DbContext, IAppDbContext
     IQueryable<LoanApplication> IAppDbContext.LoanApplications => LoanApplications;
     IQueryable<ApplicationDocument> IAppDbContext.ApplicationDocuments => ApplicationDocuments;
     IQueryable<PasswordResetOtp> IAppDbContext.PasswordResetOtps => PasswordResetOtps;
+    IQueryable<EligibilityRule> IAppDbContext.EligibilityRules => EligibilityRules;
+    IQueryable<RuleEvaluationResult> IAppDbContext.RuleEvaluationResults => RuleEvaluationResults;
 
     public void AddDepartment(Department department) => Departments.Add(department);
     public void AddCollege(College college) => Colleges.Add(college);
@@ -30,11 +34,14 @@ public class AppDbContext : DbContext, IAppDbContext
     public void AddLoanApplication(LoanApplication application) => LoanApplications.Add(application);
     public void AddApplicationDocument(ApplicationDocument document) => ApplicationDocuments.Add(document);
     public void AddPasswordResetOtp(PasswordResetOtp otp) => PasswordResetOtps.Add(otp);
+    public void AddEligibilityRule(EligibilityRule rule) => EligibilityRules.Add(rule);
+    public void AddRuleEvaluationResults(IEnumerable<RuleEvaluationResult> results) => RuleEvaluationResults.AddRange(results);
 
     public void RemoveDepartment(Department department) => Departments.Remove(department);
     public void RemoveCollege(College college) => Colleges.Remove(college);
     public void RemoveCourse(Course course) => Courses.Remove(course);
     public void RemoveApplicationDocument(ApplicationDocument document) => ApplicationDocuments.Remove(document);
+    public void RemoveEligibilityRule(EligibilityRule rule) => EligibilityRules.Remove(rule);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -102,6 +109,27 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(x => x.ResetTokenHash).HasMaxLength(64);
             entity.HasIndex(x => new { x.Email, x.CreatedAtUtc });
             entity.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<EligibilityRule>(entity =>
+        {
+            entity.ToTable("EligibilityRule"); entity.HasKey(r => r.Id);
+            entity.Property(r => r.RuleName).HasMaxLength(150).IsRequired();
+            entity.Property(r => r.RuleCategory).HasMaxLength(50).IsRequired();
+            entity.Property(r => r.ConditionField).HasMaxLength(50).IsRequired();
+            entity.Property(r => r.Operator).HasMaxLength(5).IsRequired();
+            entity.Property(r => r.ConditionValue).HasColumnType("decimal(12,2)");
+            entity.Property(r => r.ErrorMessage).HasMaxLength(300).IsRequired();
+            entity.Property(r => r.Severity).HasConversion<string>().HasMaxLength(20);
+        });
+        modelBuilder.Entity<RuleEvaluationResult>(entity =>
+        {
+            entity.ToTable("RuleEvaluationResult"); entity.HasKey(r => r.Id);
+            entity.Property(r => r.RuleName).HasMaxLength(150).IsRequired();
+            entity.Property(r => r.RuleCategory).HasMaxLength(50).IsRequired();
+            entity.Property(r => r.Severity).HasConversion<string>().HasMaxLength(20);
+            entity.Property(r => r.EvaluatedValue).HasMaxLength(50).IsRequired();
+            entity.Property(r => r.FailureMessage).HasMaxLength(300);
+            entity.HasOne(r => r.Application).WithMany().HasForeignKey(r => r.ApplicationId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

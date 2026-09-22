@@ -35,3 +35,17 @@ public class InvalidFileException : Exception
 {
     public InvalidFileException(string message) : base(message) { }
 }
+
+/// Thrown when one or more Blocking eligibility rules fail during submission.
+/// Carries every failed rule's message so the API can return the full list at once
+/// (rather than the person fixing one problem, resubmitting, and hitting the next).
+public class EligibilityFailedException : Exception
+{
+    public List<string> FailureMessages { get; }
+
+    public EligibilityFailedException(List<string> failureMessages)
+        : base("Application does not meet eligibility requirements.")
+    {
+        FailureMessages = failureMessages;
+    }
+}

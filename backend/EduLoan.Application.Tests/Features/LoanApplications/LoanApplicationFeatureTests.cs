@@ -1,4 +1,5 @@
 using EduLoan.Application.Common;
+using EduLoan.Application.Features.EligibilityRules;
 using EduLoan.Application.Features.LoanApplications;
 using EduLoan.Application.Interfaces;
 using EduLoan.Application.Tests.Features.MasterData;
@@ -118,6 +119,11 @@ public class LoanApplicationFeatureTests
         using var db = TestDbContextFactory.Create();
         var (college, course) = SeedCollegeAndCourse(db);
         var owner = Guid.NewGuid();
+        db.Users.Add(new User
+        {
+            Id = owner, EmployeeCode = "EMPX01", FullName = "Test Owner", Email = "owner1@acc.com",
+            PasswordHash = "x", Role = UserRole.Employee, DateOfJoining = new DateOnly(2020, 1, 1), MonthlySalary = 50000,
+        });
         var application = new LoanApplication
         {
             Id = Guid.NewGuid(), ApplicationNumber = "EDL-2026-CCCCCC", EmployeeId = owner,
@@ -128,7 +134,7 @@ public class LoanApplicationFeatureTests
         db.LoanApplications.Add(application);
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db);
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
 
         await Assert.ThrowsAsync<InUseException>(
             () => handler.Handle(new SubmitLoanApplicationCommand(application.Id, owner), default));
@@ -140,6 +146,11 @@ public class LoanApplicationFeatureTests
         using var db = TestDbContextFactory.Create();
         var (college, course) = SeedCollegeAndCourse(db);
         var owner = Guid.NewGuid();
+        db.Users.Add(new User
+        {
+            Id = owner, EmployeeCode = "EMPX02", FullName = "Test Owner 2", Email = "owner2@acc.com",
+            PasswordHash = "x", Role = UserRole.Employee, DateOfJoining = new DateOnly(2020, 1, 1), MonthlySalary = 50000,
+        });
         var application = new LoanApplication
         {
             Id = Guid.NewGuid(), ApplicationNumber = "EDL-2026-DDDDDD", EmployeeId = owner,
@@ -154,7 +165,7 @@ public class LoanApplicationFeatureTests
         });
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db);
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
         var result = await handler.Handle(new SubmitLoanApplicationCommand(application.Id, owner), default);
 
         Assert.Equal("Submitted", result.Status);

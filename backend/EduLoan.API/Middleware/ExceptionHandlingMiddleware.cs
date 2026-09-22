@@ -62,6 +62,10 @@ public class ExceptionHandlingMiddleware
                     HttpStatusCode.BadRequest,
                     ApiResponse<object>.FailureResponse(invalidFileEx.Message)),
 
+                EligibilityFailedException eligibilityEx => (
+                    HttpStatusCode.UnprocessableEntity,
+                    ApiResponse<object>.FailureResponse(eligibilityEx.Message, eligibilityEx.FailureMessages)),
+
                 ValidationException validationEx => (
                     HttpStatusCode.BadRequest,
                     ApiResponse<object>.FailureResponse(

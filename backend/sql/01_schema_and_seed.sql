@@ -395,7 +395,76 @@ GO
 
 
 -- ============================================================
--- 8. VERIFICATION QUERIES
+-- 8. ELIGIBILITY RULE
+-- ============================================================
+
+IF OBJECT_ID('dbo.EligibilityRule', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.EligibilityRule
+    (
+        Id              INT IDENTITY(1,1) PRIMARY KEY,
+        RuleName        NVARCHAR(150) NOT NULL,
+        RuleCategory    NVARCHAR(50) NOT NULL,
+        ConditionField  NVARCHAR(50) NOT NULL,
+        [Operator]      NVARCHAR(5) NOT NULL,
+        ConditionValue  DECIMAL(12,2) NOT NULL,
+        ErrorMessage    NVARCHAR(300) NOT NULL,
+        Severity        NVARCHAR(20) NOT NULL DEFAULT 'Blocking',
+        IsActive        BIT NOT NULL DEFAULT 1,
+        CreatedAt       DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+    );
+END
+GO
+
+-- Seed default rules only if they don't already exist (idempotent, same as the rest of this script)
+
+IF NOT EXISTS (SELECT 1 FROM dbo.EligibilityRule WHERE RuleName = 'Minimum Employment Tenure')
+    INSERT INTO dbo.EligibilityRule (RuleName, RuleCategory, ConditionField, [Operator], ConditionValue, ErrorMessage, Severity)
+    VALUES ('Minimum Employment Tenure', 'Tenure', 'TenureMonths', '>=', 12,
+            'You must have at least 12 months of employment tenure to apply for an education loan.', 'Blocking');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.EligibilityRule WHERE RuleName = 'Minimum Monthly Salary')
+    INSERT INTO dbo.EligibilityRule (RuleName, RuleCategory, ConditionField, [Operator], ConditionValue, ErrorMessage, Severity)
+    VALUES ('Minimum Monthly Salary', 'Salary', 'MonthlySalary', '>=', 20000,
+            'Your monthly salary must be at least Rs. 20,000 to be eligible.', 'Blocking');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.EligibilityRule WHERE RuleName = 'Maximum Loan to Salary Ratio')
+    INSERT INTO dbo.EligibilityRule (RuleName, RuleCategory, ConditionField, [Operator], ConditionValue, ErrorMessage, Severity)
+    VALUES ('Maximum Loan to Salary Ratio', 'LoanCap', 'LoanToMonthlySalaryRatio', '<=', 24,
+            'The requested loan amount cannot exceed 24 times your monthly salary.', 'Blocking');
+GO
+
+
+-- ============================================================
+-- 9. RULE EVALUATION RESULT
+-- ============================================================
+
+IF OBJECT_ID('dbo.RuleEvaluationResult', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.RuleEvaluationResult
+    (
+        Id             UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
+        ApplicationId  UNIQUEIDENTIFIER NOT NULL,
+        RuleId         INT NOT NULL,
+        RuleName       NVARCHAR(150) NOT NULL,
+        RuleCategory   NVARCHAR(50) NOT NULL,
+        Severity       NVARCHAR(20) NOT NULL,
+        Passed         BIT NOT NULL,
+        EvaluatedValue NVARCHAR(50) NOT NULL,
+        FailureMessage NVARCHAR(300) NULL,
+        EvaluatedAt    DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+
+        CONSTRAINT FK_RuleEvaluationResult_Application
+            FOREIGN KEY (ApplicationId)
+            REFERENCES dbo.LoanApplication(Id)
+            ON DELETE CASCADE
+    );
+END
+GO
+
+
+-- ============================================================
+-- 10. VERIFICATION QUERIES
 -- ============================================================
 
 SELECT

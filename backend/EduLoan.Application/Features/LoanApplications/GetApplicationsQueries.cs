@@ -43,6 +43,11 @@ public class GetApplicationByIdQueryHandler : IRequestHandler<GetApplicationById
         if (application.EmployeeId != request.RequestingUserId)
             throw new ForbiddenException("You can only view your own application.");
 
-        return application.ToDetailDto();
+        var eligibilityResults = await _db.RuleEvaluationResults
+            .Where(r => r.ApplicationId == application.Id)
+            .OrderBy(r => r.RuleCategory).ThenBy(r => r.RuleName)
+            .ToListAsync(ct);
+
+        return application.ToDetailDto(eligibilityResults);
     }
 }
