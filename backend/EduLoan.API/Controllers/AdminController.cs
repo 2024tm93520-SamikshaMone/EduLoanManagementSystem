@@ -6,6 +6,10 @@ using EduLoan.Application.Features.MasterData.Departments;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using EduLoan.Application.Features.AdminDashboard;
+using EduLoan.Application.Features.AdminApplications;
+using EduLoan.Application.Features.AdminReports;
+
 
 namespace EduLoan.API.Controllers;
 
@@ -120,44 +124,83 @@ public class AdminController : ControllerBase
         await _mediator.Send(new DeleteCourseCommand(id), ct);
         return Ok(ApiResponse<object>.SuccessResponse(new { }, "Course deleted."));
     }
+    // ---------------- Dashboard ----------------
 
-    // ---------------- Eligibility Rules ----------------
-
-    public record UpsertEligibilityRuleRequest(
-        string RuleName, string RuleCategory, string ConditionField, string Operator,
-        decimal ConditionValue, string ErrorMessage, string Severity, bool IsActive = true);
-
-    // [HttpGet("eligibility-rules")]
-    // public async Task<ActionResult<ApiResponse<List<EligibilityRuleDto>>>> GetEligibilityRules(CancellationToken ct)
-    // {
-    //     var result = await _mediator.Send(new GetEligibilityRulesQuery(), ct);
-    //     return Ok(ApiResponse<List<EligibilityRuleDto>>.SuccessResponse(result));
-    // }
-
-    [HttpPost("eligibility-rules")]
-    public async Task<ActionResult<ApiResponse<EligibilityRuleDto>>> CreateEligibilityRule(
-        [FromBody] UpsertEligibilityRuleRequest request, CancellationToken ct)
+    [HttpGet("dashboard")]
+    public async Task<ActionResult<ApiResponse<AdminDashboardDto>>> GetDashboard(
+        CancellationToken ct)
     {
-        var result = await _mediator.Send(new CreateEligibilityRuleCommand(
-            request.RuleName, request.RuleCategory, request.ConditionField, request.Operator,
-            request.ConditionValue, request.ErrorMessage, request.Severity), ct);
-        return Ok(ApiResponse<EligibilityRuleDto>.SuccessResponse(result, "Rule created."));
+        var result = await _mediator.Send(
+            new GetAdminDashboardQuery(),
+            ct);
+
+        return Ok(
+            ApiResponse<AdminDashboardDto>.SuccessResponse(result)
+        );
+    }
+    // ---------------- Loan Applications ----------------
+
+    [HttpGet("applications")]
+    public async Task<ActionResult<ApiResponse<List<AdminLoanApplicationDto>>>> GetApplications(
+        CancellationToken ct)
+    {
+        var result = await _mediator.Send(
+            new GetAdminLoanApplicationsQuery(),
+            ct);
+
+        return Ok(
+            ApiResponse<List<AdminLoanApplicationDto>>.SuccessResponse(result)
+        );
     }
 
-    [HttpPut("eligibility-rules/{id:int}")]
-    public async Task<ActionResult<ApiResponse<EligibilityRuleDto>>> UpdateEligibilityRule(
-        int id, [FromBody] UpsertEligibilityRuleRequest request, CancellationToken ct)
+    [HttpGet("applications/{id:guid}")]
+    public async Task<ActionResult<ApiResponse<AdminLoanApplicationDetailDto>>> GetApplication(
+        Guid id,
+        CancellationToken ct)
     {
-        var result = await _mediator.Send(new UpdateEligibilityRuleCommand(
-            id, request.RuleName, request.RuleCategory, request.ConditionField, request.Operator,
-            request.ConditionValue, request.ErrorMessage, request.Severity, request.IsActive), ct);
-        return Ok(ApiResponse<EligibilityRuleDto>.SuccessResponse(result, "Rule updated."));
+        var result = await _mediator.Send(
+            new GetAdminLoanApplicationByIdQuery(id),
+            ct);
+
+        return Ok(
+            ApiResponse<AdminLoanApplicationDetailDto>.SuccessResponse(result)
+        );
+    }
+    // ---------------- Employees ----------------
+
+    [HttpGet("employees")]
+    public async Task<ActionResult<ApiResponse<List<AdminEmployeeDto>>>> GetEmployees(
+        CancellationToken ct)
+    {
+        var result = await _mediator.Send(
+            new GetAdminEmployeesQuery(),
+            ct);
+
+        return Ok(
+            ApiResponse<List<AdminEmployeeDto>>.SuccessResponse(result)
+        );
     }
 
-    [HttpDelete("eligibility-rules/{id:int}")]
-    public async Task<ActionResult<ApiResponse<object>>> DeleteEligibilityRule(int id, CancellationToken ct)
+    // ---------------- Reports ----------------
+
+    [HttpGet("reports")]
+    public async Task<ActionResult<ApiResponse<AdminReportsDto>>> GetReports(
+        [FromQuery] int? year,
+        [FromQuery] int? departmentId,
+        [FromQuery] int? courseId,
+        [FromQuery] int? collegeId,
+        CancellationToken ct)
     {
-        await _mediator.Send(new DeleteEligibilityRuleCommand(id), ct);
-        return Ok(ApiResponse<object>.SuccessResponse(new { }, "Rule deleted."));
+        var result = await _mediator.Send(
+            new GetAdminReportsQuery(
+                year,
+                departmentId,
+                courseId,
+                collegeId),
+            ct);
+
+        return Ok(
+            ApiResponse<AdminReportsDto>.SuccessResponse(result)
+        );
     }
 }

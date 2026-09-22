@@ -81,7 +81,7 @@ public class LoanApplicationsController : ControllerBase
     public async Task<ActionResult<ApiResponse<LoanApplicationDetailDto>>> Cancel(Guid id, CancellationToken ct)
     {
         var result = await _mediator.Send(new CancelLoanApplicationCommand(id, UserId), ct);
-        return Ok(ApiResponse<LoanApplicationDetailDto>.SuccessResponse(result, "Application cancelled."));
+        return Ok(ApiResponse<LoanApplicationDetailDto>.SuccessResponse(result, "Application rejected."));
     }
 
     [HttpPost("{id:guid}/documents")]

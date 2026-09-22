@@ -1,99 +1,11 @@
--- ============================================================
--- EduLoanDB — Safe schema + seed data (Modules 1-4)
--- Database: EduLoanDB
--- SQL Server / Azure SQL Edge
---
--- IMPORTANT:
--- This script does NOT delete existing tables or data.
--- It is safe to execute multiple times.
--- ============================================================
-
-
--- ============================================================
--- 1. CREATE DATABASE
--- ============================================================
-
-IF DB_ID('EduLoanDB') IS NULL
-BEGIN
-    CREATE DATABASE EduLoanDB;
-END
-GO
-
 USE EduLoanDB;
 GO
 
+/* =========================================================
+   ADD EMPLOYEES ONLY IF THEY DON'T ALREADY EXIST
+   ========================================================= */
 
--- ============================================================
--- 2. DEPARTMENT
--- ============================================================
-
-IF OBJECT_ID('dbo.Department', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.Department
-    (
-        Id       INT IDENTITY(1,1) PRIMARY KEY,
-        Name     NVARCHAR(100) NOT NULL,
-        IsActive BIT NOT NULL DEFAULT 1
-    );
-END
-GO
-
--- Seed Department data only if it doesn't exist
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Department WHERE Name = 'Engineering')
-    INSERT INTO dbo.Department (Name) VALUES ('Engineering');
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Department WHERE Name = 'Human Resources')
-    INSERT INTO dbo.Department (Name) VALUES ('Human Resources');
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Department WHERE Name = 'Finance')
-    INSERT INTO dbo.Department (Name) VALUES ('Finance');
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Department WHERE Name = 'Administration')
-    INSERT INTO dbo.Department (Name) VALUES ('Administration');
-GO
-
-
--- ============================================================
--- 3. USERS
--- ============================================================
-
-IF OBJECT_ID('dbo.Users', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.Users
-    (
-        Id              UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
-        EmployeeCode    NVARCHAR(20) NOT NULL,
-        FullName        NVARCHAR(150) NOT NULL,
-        Email           NVARCHAR(150) NOT NULL,
-        PasswordHash    NVARCHAR(255) NOT NULL,
-        Role            NVARCHAR(20) NOT NULL,
-        DepartmentId    INT NULL,
-        Designation     NVARCHAR(100) NULL,
-        DateOfJoining   DATE NOT NULL,
-        MonthlySalary   DECIMAL(12,2) NOT NULL DEFAULT 0,
-        PhoneNumber     NVARCHAR(15) NULL,
-        IsActive        BIT NOT NULL DEFAULT 1,
-        CreatedAt       DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-        UpdatedAt       DATETIME2 NULL,
-
-        CONSTRAINT UQ_Users_EmployeeCode UNIQUE (EmployeeCode),
-        CONSTRAINT UQ_Users_Email UNIQUE (Email),
-
-        CONSTRAINT FK_Users_Department
-            FOREIGN KEY (DepartmentId)
-            REFERENCES dbo.Department(Id)
-    );
-END
-GO
-
-
--- Seed Users
-
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.Users
-    WHERE EmployeeCode = 'EMP1001'
-)
+IF NOT EXISTS (SELECT 1 FROM dbo.Users WHERE EmployeeCode = 'EMP1005')
 BEGIN
     INSERT INTO dbo.Users
     (
@@ -103,25 +15,47 @@ BEGIN
     )
     VALUES
     (
-        'EMP1001',
-        'Samiksha Mone',
-        'samikshamone6@gmail.com',
+        'EMP1005',
+        'Priya Sharma',
+        'priya.sharma@acc.com',
+        '$2b$10$9YbUuqUOHgaN8IGX5fjxbOzHzd7UlNc2lrEtfrjW0XtudU2w9mD5O',
+        'Employee',
+        (SELECT Id FROM dbo.Department WHERE Name = 'Engineering'),
+        'Senior Software Engineer',
+        '2021-04-12',
+        85000,
+        '+91 9876543214',
+        1
+    );
+END;
+
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Users WHERE EmployeeCode = 'EMP1006')
+BEGIN
+    INSERT INTO dbo.Users
+    (
+        EmployeeCode, FullName, Email, PasswordHash,
+        Role, DepartmentId, Designation, DateOfJoining,
+        MonthlySalary, PhoneNumber, IsActive
+    )
+    VALUES
+    (
+        'EMP1006',
+        'Rahul Patil',
+        'rahul.patil@acc.com',
         '$2b$10$9YbUuqUOHgaN8IGX5fjxbOzHzd7UlNc2lrEtfrjW0XtudU2w9mD5O',
         'Employee',
         (SELECT Id FROM dbo.Department WHERE Name = 'Engineering'),
         'Software Engineer',
-        '2022-01-10',
-        65000,
-        '+91 9876543210',
+        '2022-06-20',
+        72000,
+        '+91 9876543215',
         1
     );
 END;
 
 
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.Users
-    WHERE EmployeeCode = 'EMP1002'
-)
+IF NOT EXISTS (SELECT 1 FROM dbo.Users WHERE EmployeeCode = 'EMP1007')
 BEGIN
     INSERT INTO dbo.Users
     (
@@ -131,53 +65,22 @@ BEGIN
     )
     VALUES
     (
-        'EMP1002',
-        'Admin User',
-        'admin@acc.com',
+        'EMP1007',
+        'Sneha Kulkarni',
+        'sneha.kulkarni@acc.com',
         '$2b$10$9YbUuqUOHgaN8IGX5fjxbOzHzd7UlNc2lrEtfrjW0XtudU2w9mD5O',
-        'Admin',
-        (SELECT Id FROM dbo.Department WHERE Name = 'Administration'),
-        'System Administrator',
-        '2020-06-01',
-        90000,
-        '9876543211',
-        1
-    );
-END;
-
-
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.Users
-    WHERE EmployeeCode = 'EMP1003'
-)
-BEGIN
-    INSERT INTO dbo.Users
-    (
-        EmployeeCode, FullName, Email, PasswordHash,
-        Role, DepartmentId, Designation, DateOfJoining,
-        MonthlySalary, PhoneNumber, IsActive
-    )
-    VALUES
-    (
-        'EMP1003',
-        'HR User',
-        'hr@acc.com',
-        '$2b$10$9YbUuqUOHgaN8IGX5fjxbOzHzd7UlNc2lrEtfrjW0XtudU2w9mD5O',
-        'HR',
+        'Employee',
         (SELECT Id FROM dbo.Department WHERE Name = 'Human Resources'),
-        'HR Manager',
-        '2019-03-15',
-        80000,
-        '9876543212',
+        'HR Analyst',
+        '2020-08-10',
+        78000,
+        '+91 9876543216',
         1
     );
 END;
 
 
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.Users
-    WHERE EmployeeCode = 'EMP1004'
-)
+IF NOT EXISTS (SELECT 1 FROM dbo.Users WHERE EmployeeCode = 'EMP1008')
 BEGIN
     INSERT INTO dbo.Users
     (
@@ -187,314 +90,242 @@ BEGIN
     )
     VALUES
     (
-        'EMP1004',
-        'Finance User',
-        'finance@acc.com',
+        'EMP1008',
+        'Amit Deshmukh',
+        'amit.deshmukh@acc.com',
         '$2b$10$9YbUuqUOHgaN8IGX5fjxbOzHzd7UlNc2lrEtfrjW0XtudU2w9mD5O',
-        'Finance',
+        'Employee',
         (SELECT Id FROM dbo.Department WHERE Name = 'Finance'),
-        'Finance Executive',
-        '2021-08-20',
-        75000,
-        '9876543213',
+        'Finance Analyst',
+        '2019-03-18',
+        90000,
+        '+91 9876543217',
         1
     );
 END;
-GO
 
 
--- ============================================================
--- 4. COLLEGE
--- ============================================================
-
-IF OBJECT_ID('dbo.College', 'U') IS NULL
+IF NOT EXISTS (SELECT 1 FROM dbo.Users WHERE EmployeeCode = 'EMP1009')
 BEGIN
-    CREATE TABLE dbo.College
+    INSERT INTO dbo.Users
     (
-        Id       INT IDENTITY(1,1) PRIMARY KEY,
-        Name     NVARCHAR(200) NOT NULL,
-        City     NVARCHAR(100) NOT NULL,
-        IsActive BIT NOT NULL DEFAULT 1
-    );
-END
-GO
-
-
--- Seed Colleges
-
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.College
-    WHERE Name = 'Birla Institute of Technology & Science, Pilani'
-)
-BEGIN
-    INSERT INTO dbo.College (Name, City)
-    VALUES
-    ('Birla Institute of Technology & Science, Pilani', 'Pilani');
-END;
-
-
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.College
-    WHERE Name = 'Indian Institute of Technology Bombay'
-)
-BEGIN
-    INSERT INTO dbo.College (Name, City)
-    VALUES
-    ('Indian Institute of Technology Bombay', 'Mumbai');
-END;
-
-
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.College
-    WHERE Name = 'Savitribai Phule Pune University'
-)
-BEGIN
-    INSERT INTO dbo.College (Name, City)
-    VALUES
-    ('Savitribai Phule Pune University', 'Pune');
-END;
-GO
-
-
--- ============================================================
--- 5. COURSE
--- ============================================================
-
-IF OBJECT_ID('dbo.Course', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.Course
-    (
-        Id                      INT IDENTITY(1,1) PRIMARY KEY,
-        Name                    NVARCHAR(150) NOT NULL,
-        Level                   NVARCHAR(30) NOT NULL,
-        StandardDurationMonths  INT NOT NULL,
-        IsActive                BIT NOT NULL DEFAULT 1
-    );
-END
-GO
-
-
--- Seed Courses
-
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.Course
-    WHERE Name = 'M.Tech Software Engineering'
-)
-BEGIN
-    INSERT INTO dbo.Course
-    (
-        Name, Level, StandardDurationMonths
+        EmployeeCode, FullName, Email, PasswordHash,
+        Role, DepartmentId, Designation, DateOfJoining,
+        MonthlySalary, PhoneNumber, IsActive
     )
     VALUES
     (
-        'M.Tech Software Engineering', 'PG', 24
+        'EMP1009',
+        'Neha Joshi',
+        'neha.joshi@acc.com',
+        '$2b$10$9YbUuqUOHgaN8IGX5fjxbOzHzd7UlNc2lrEtfrjW0XtudU2w9mD5O',
+        'Employee',
+        (SELECT Id FROM dbo.Department WHERE Name = 'Administration'),
+        'Business Analyst',
+        '2023-01-09',
+        68000,
+        '+91 9876543218',
+        1
+    );
+END;
+
+GO
+
+/* =========================================================
+   ADD LOAN APPLICATIONS ONLY IF APPLICATION NUMBER
+   DOES NOT ALREADY EXIST
+   ========================================================= */
+
+IF NOT EXISTS (
+    SELECT 1 FROM dbo.LoanApplication
+    WHERE ApplicationNumber = 'ELA-2026-0005'
+)
+BEGIN
+    INSERT INTO dbo.LoanApplication
+    (
+        ApplicationNumber,
+        EmployeeId,
+        CollegeId,
+        CourseId,
+        Specialization,
+        CourseDurationMonths,
+        TotalEducationFees,
+        RequestedAmount,
+        RequestedTenureMonths,
+        EducationPurpose,
+        Status,
+        CreatedAt,
+        SubmittedAt
+    )
+    VALUES
+    (
+        'ELA-2026-0005',
+        (SELECT Id FROM dbo.Users WHERE EmployeeCode = 'EMP1005'),
+        (SELECT Id FROM dbo.College
+         WHERE Name = 'Birla Institute of Technology & Science, Pilani'),
+        (SELECT Id FROM dbo.Course
+         WHERE Name = 'M.Tech Software Engineering'),
+        'Software Engineering',
+        24,
+        450000,
+        350000,
+        36,
+        'Higher Education',
+        'Submitted',
+        '2026-09-01 10:15:00',
+        '2026-09-02 11:30:00'
     );
 END;
 
 
 IF NOT EXISTS (
-    SELECT 1 FROM dbo.Course
-    WHERE Name = 'MBA'
+    SELECT 1 FROM dbo.LoanApplication
+    WHERE ApplicationNumber = 'ELA-2026-0006'
 )
 BEGIN
-    INSERT INTO dbo.Course
+    INSERT INTO dbo.LoanApplication
     (
-        Name, Level, StandardDurationMonths
+        ApplicationNumber, EmployeeId, CollegeId, CourseId,
+        Specialization, CourseDurationMonths, TotalEducationFees,
+        RequestedAmount, RequestedTenureMonths, EducationPurpose,
+        Status, CreatedAt, SubmittedAt
     )
     VALUES
     (
-        'MBA', 'PG', 24
+        'ELA-2026-0006',
+        (SELECT Id FROM dbo.Users WHERE EmployeeCode = 'EMP1006'),
+        (SELECT Id FROM dbo.College
+         WHERE Name = 'Indian Institute of Technology Bombay'),
+        (SELECT Id FROM dbo.Course
+         WHERE Name = 'M.Tech Software Engineering'),
+        'Computer Science',
+        24,
+        500000,
+        400000,
+        48,
+        'Higher Education',
+        'Approved',
+        '2026-08-10 09:20:00',
+        '2026-08-11 10:15:00'
     );
 END;
 
 
 IF NOT EXISTS (
-    SELECT 1 FROM dbo.Course
-    WHERE Name = 'B.Tech Computer Science'
+    SELECT 1 FROM dbo.LoanApplication
+    WHERE ApplicationNumber = 'ELA-2026-0007'
 )
 BEGIN
-    INSERT INTO dbo.Course
+    INSERT INTO dbo.LoanApplication
     (
-        Name, Level, StandardDurationMonths
+        ApplicationNumber, EmployeeId, CollegeId, CourseId,
+        Specialization, CourseDurationMonths, TotalEducationFees,
+        RequestedAmount, RequestedTenureMonths, EducationPurpose,
+        Status, CreatedAt, SubmittedAt
     )
     VALUES
     (
-        'B.Tech Computer Science', 'UG', 48
+        'ELA-2026-0007',
+        (SELECT Id FROM dbo.Users WHERE EmployeeCode = 'EMP1007'),
+        (SELECT Id FROM dbo.College
+         WHERE Name = 'Savitribai Phule Pune University'),
+        (SELECT Id FROM dbo.Course
+         WHERE Name = 'MBA'),
+        'Human Resources',
+        24,
+        320000,
+        250000,
+        36,
+        'Higher Education',
+        'Rejected',
+        '2026-08-05 14:10:00',
+        '2026-08-06 09:45:00'
     );
 END;
-GO
 
 
--- ============================================================
--- 6. LOAN APPLICATION
--- ============================================================
-
-IF OBJECT_ID('dbo.LoanApplication', 'U') IS NULL
+IF NOT EXISTS (
+    SELECT 1 FROM dbo.LoanApplication
+    WHERE ApplicationNumber = 'ELA-2026-0008'
+)
 BEGIN
-    CREATE TABLE dbo.LoanApplication
+    INSERT INTO dbo.LoanApplication
     (
-        Id                      UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
-        ApplicationNumber       NVARCHAR(20) NOT NULL,
-        EmployeeId              UNIQUEIDENTIFIER NOT NULL,
-        CollegeId               INT NOT NULL,
-        CourseId                INT NOT NULL,
-        Specialization          NVARCHAR(150) NOT NULL,
-        CourseDurationMonths    INT NOT NULL,
-        TotalEducationFees      DECIMAL(12,2) NOT NULL,
-        RequestedAmount         DECIMAL(12,2) NOT NULL,
-        RequestedTenureMonths   INT NOT NULL,
-        EducationPurpose        NVARCHAR(500) NOT NULL,
-        Status                  NVARCHAR(20) NOT NULL DEFAULT 'Draft',
-        CreatedAt               DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-        SubmittedAt             DATETIME2 NULL,
-        UpdatedAt               DATETIME2 NULL,
-
-        CONSTRAINT UQ_LoanApplication_ApplicationNumber
-            UNIQUE (ApplicationNumber),
-
-        CONSTRAINT FK_LoanApplication_Employee
-            FOREIGN KEY (EmployeeId)
-            REFERENCES dbo.Users(Id),
-
-        CONSTRAINT FK_LoanApplication_College
-            FOREIGN KEY (CollegeId)
-            REFERENCES dbo.College(Id),
-
-        CONSTRAINT FK_LoanApplication_Course
-            FOREIGN KEY (CourseId)
-            REFERENCES dbo.Course(Id)
+        ApplicationNumber, EmployeeId, CollegeId, CourseId,
+        Specialization, CourseDurationMonths, TotalEducationFees,
+        RequestedAmount, RequestedTenureMonths, EducationPurpose,
+        Status, CreatedAt, SubmittedAt
+    )
+    VALUES
+    (
+        'ELA-2026-0008',
+        (SELECT Id FROM dbo.Users WHERE EmployeeCode = 'EMP1008'),
+        (SELECT Id FROM dbo.College
+         WHERE Name = 'Indian Institute of Technology Bombay'),
+        (SELECT Id FROM dbo.Course
+         WHERE Name = 'M.Tech Software Engineering'),
+        'Data Engineering',
+        24,
+        480000,
+        375000,
+        48,
+        'Higher Education',
+        'Approved',
+        '2026-07-15 11:00:00',
+        '2026-07-16 12:20:00'
     );
-END
-GO
+END;
 
 
--- ============================================================
--- 7. APPLICATION DOCUMENT
--- ============================================================
-
-IF OBJECT_ID('dbo.ApplicationDocument', 'U') IS NULL
+IF NOT EXISTS (
+    SELECT 1 FROM dbo.LoanApplication
+    WHERE ApplicationNumber = 'ELA-2026-0009'
+)
 BEGIN
-    CREATE TABLE dbo.ApplicationDocument
+    INSERT INTO dbo.LoanApplication
     (
-        Id             UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
-        ApplicationId  UNIQUEIDENTIFIER NOT NULL,
-        DocumentType   NVARCHAR(100) NOT NULL,
-        FileName       NVARCHAR(255) NOT NULL,
-        StoredFileName NVARCHAR(255) NOT NULL,
-        ContentType    NVARCHAR(100) NOT NULL DEFAULT 'application/octet-stream',
-        FileSizeBytes  BIGINT NOT NULL DEFAULT 0,
-        UploadedAt     DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-
-        CONSTRAINT FK_ApplicationDocument_Application
-            FOREIGN KEY (ApplicationId)
-            REFERENCES dbo.LoanApplication(Id)
-            ON DELETE CASCADE
-    );
-END
-GO
-
-
--- ============================================================
--- 8. ELIGIBILITY RULE
--- ============================================================
-
-IF OBJECT_ID('dbo.EligibilityRule', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.EligibilityRule
+        ApplicationNumber, EmployeeId, CollegeId, CourseId,
+        Specialization, CourseDurationMonths, TotalEducationFees,
+        RequestedAmount, RequestedTenureMonths, EducationPurpose,
+        Status, CreatedAt, SubmittedAt
+    )
+    VALUES
     (
-        Id              INT IDENTITY(1,1) PRIMARY KEY,
-        RuleName        NVARCHAR(150) NOT NULL,
-        RuleCategory    NVARCHAR(50) NOT NULL,
-        ConditionField  NVARCHAR(50) NOT NULL,
-        [Operator]      NVARCHAR(5) NOT NULL,
-        ConditionValue  DECIMAL(12,2) NOT NULL,
-        ErrorMessage    NVARCHAR(300) NOT NULL,
-        Severity        NVARCHAR(20) NOT NULL DEFAULT 'Blocking',
-        IsActive        BIT NOT NULL DEFAULT 1,
-        CreatedAt       DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+        'ELA-2026-0009',
+        (SELECT Id FROM dbo.Users WHERE EmployeeCode = 'EMP1009'),
+        (SELECT Id FROM dbo.College
+         WHERE Name = 'Savitribai Phule Pune University'),
+        (SELECT Id FROM dbo.Course
+         WHERE Name = 'MBA'),
+        'Finance',
+        24,
+        350000,
+        275000,
+        36,
+        'Higher Education',
+        'Submitted',
+        '2026-09-10 15:30:00',
+        '2026-09-11 10:00:00'
     );
-END
+END;
+
 GO
 
--- Seed default rules only if they don't already exist (idempotent, same as the rest of this script)
-
-IF NOT EXISTS (SELECT 1 FROM dbo.EligibilityRule WHERE RuleName = 'Minimum Employment Tenure')
-    INSERT INTO dbo.EligibilityRule (RuleName, RuleCategory, ConditionField, [Operator], ConditionValue, ErrorMessage, Severity)
-    VALUES ('Minimum Employment Tenure', 'Tenure', 'TenureMonths', '>=', 12,
-            'You must have at least 12 months of employment tenure to apply for an education loan.', 'Blocking');
-
-IF NOT EXISTS (SELECT 1 FROM dbo.EligibilityRule WHERE RuleName = 'Minimum Monthly Salary')
-    INSERT INTO dbo.EligibilityRule (RuleName, RuleCategory, ConditionField, [Operator], ConditionValue, ErrorMessage, Severity)
-    VALUES ('Minimum Monthly Salary', 'Salary', 'MonthlySalary', '>=', 20000,
-            'Your monthly salary must be at least Rs. 20,000 to be eligible.', 'Blocking');
-
-IF NOT EXISTS (SELECT 1 FROM dbo.EligibilityRule WHERE RuleName = 'Maximum Loan to Salary Ratio')
-    INSERT INTO dbo.EligibilityRule (RuleName, RuleCategory, ConditionField, [Operator], ConditionValue, ErrorMessage, Severity)
-    VALUES ('Maximum Loan to Salary Ratio', 'LoanCap', 'LoanToMonthlySalaryRatio', '<=', 24,
-            'The requested loan amount cannot exceed 24 times your monthly salary.', 'Blocking');
-GO
-
-
--- ============================================================
--- 9. RULE EVALUATION RESULT
--- ============================================================
-
-IF OBJECT_ID('dbo.RuleEvaluationResult', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.RuleEvaluationResult
-    (
-        Id             UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
-        ApplicationId  UNIQUEIDENTIFIER NOT NULL,
-        RuleId         INT NOT NULL,
-        RuleName       NVARCHAR(150) NOT NULL,
-        RuleCategory   NVARCHAR(50) NOT NULL,
-        Severity       NVARCHAR(20) NOT NULL,
-        Passed         BIT NOT NULL,
-        EvaluatedValue NVARCHAR(50) NOT NULL,
-        FailureMessage NVARCHAR(300) NULL,
-        EvaluatedAt    DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-
-        CONSTRAINT FK_RuleEvaluationResult_Application
-            FOREIGN KEY (ApplicationId)
-            REFERENCES dbo.LoanApplication(Id)
-            ON DELETE CASCADE
-    );
-END
-GO
-
-
--- ============================================================
--- 10. VERIFICATION QUERIES
--- ============================================================
-
-SELECT
-    Id,
-    EmployeeCode,
-    FullName,
-    Email,
-    Role,
-    IsActive
-FROM dbo.Users;
-GO
-
-SELECT
-    Id,
-    ApplicationNumber,
-    EmployeeId,
-    CollegeId,
-    CourseId,
-    Status,
-    CreatedAt,
-    SubmittedAt
-FROM dbo.LoanApplication
-ORDER BY CreatedAt DESC;
-GO
-
-SELECT
-    DB_NAME() AS CurrentDatabase,
-    @@SERVERNAME AS ServerName;
-GO
-
-SELECT EmployeeCode, Email, PhoneNumber, UpdatedAt
+SELECT EmployeeCode, FullName, Email
 FROM dbo.Users
-WHERE EmployeeCode = 'EMP1001';
+WHERE EmployeeCode BETWEEN 'EMP1005' AND 'EMP1009';
+
+SELECT ApplicationNumber, Status
+FROM dbo.LoanApplication
+WHERE ApplicationNumber IN
+(
+    'ELA-2026-0005',
+    'ELA-2026-0006',
+    'ELA-2026-0007',
+    'ELA-2026-0008',
+    'ELA-2026-0009'
+);
+
+SELECT DISTINCT Status
+FROM LoanApplication
+ORDER BY Status;

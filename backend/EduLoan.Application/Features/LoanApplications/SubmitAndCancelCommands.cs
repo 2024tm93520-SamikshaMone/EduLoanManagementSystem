@@ -126,7 +126,7 @@ public class CancelLoanApplicationCommandHandler : IRequestHandler<CancelLoanApp
         if (application.Status is not (ApplicationStatus.Draft or ApplicationStatus.Submitted))
             throw new InUseException("This application can no longer be cancelled.");
 
-        application.Status = ApplicationStatus.Cancelled;
+        application.Status = ApplicationStatus.Rejected;
         application.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
 

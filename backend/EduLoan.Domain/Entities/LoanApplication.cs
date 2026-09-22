@@ -4,7 +4,8 @@ public enum ApplicationStatus
 {
     Draft,
     Submitted,
-    Cancelled,
+    Approved,
+    Rejected
     // UnderReview / Approved / Rejected are reserved for the Approval Workflow module —
     // not used yet since that logic doesn't exist in the system at this point.
 }
