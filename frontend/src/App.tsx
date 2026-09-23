@@ -8,20 +8,26 @@ import {
 
 import LoginPage from "./features/auth/LoginPage";
 import ProfilePage from "./features/employee/ProfilePage";
+import HelpSupportPage from "./HelpSupportPage";
 
 import AdminMasterDataPage from "./features/admin/pages/AdminMasterDataPage";
 import AdminDashboardPage from "./features/admin/pages/AdminDashboardPage";
 import EligibilityRulesPage from "./features/admin/pages/EligibilityRulesPage";
-
-import MyApplicationsPage from "./features/loans/pages/MyApplicationsPage";
-import NewApplicationPage from "./features/loans/pages/NewApplicationPage";
 import AdminLoanApplicationsPage from "./features/admin/pages/AdminLoanApplicationsPage";
 import AdminEmployeesPage from "./features/admin/pages/AdminEmployeesPage";
 import AdminReportsPage from "./features/admin/pages/AdminReportsPage";
+
+import MyApplicationsPage from "./features/loans/pages/MyApplicationsPage";
+import NewApplicationPage from "./features/loans/pages/NewApplicationPage";
+
 import EmployeeNav from "./components/EmployeeNav";
 import AdminNav from "./components/AdminNav";
 
 import PasswordPage from "./features/auth/PasswordPage";
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
 
 function LoginRoute() {
   const navigate = useNavigate();
@@ -60,6 +66,15 @@ function NewApplicationRoute() {
     <>
       <EmployeeNav />
       <NewApplicationPage />
+    </>
+  );
+}
+
+function EmployeeHelpSupportRoute() {
+  return (
+    <>
+      <EmployeeNav />
+      <HelpSupportPage />
     </>
   );
 }
@@ -113,6 +128,15 @@ function AdminReportsRoute() {
   );
 }
 
+function AdminHelpSupportRoute() {
+  return (
+    <>
+      <AdminNav />
+      <HelpSupportPage />
+    </>
+  );
+}
+
 /* =========================================================
    APP
    ========================================================= */
@@ -122,7 +146,9 @@ export default function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* ==================== AUTH ==================== */}
+        {/* =====================================================
+           AUTH
+           ===================================================== */}
 
         <Route
           path="/login"
@@ -139,7 +165,9 @@ export default function App() {
           element={<PasswordPage />}
         />
 
-        {/* ==================== EMPLOYEE ==================== */}
+        {/* =====================================================
+           EMPLOYEE
+           ===================================================== */}
 
         <Route
           path="/employee/dashboard"
@@ -161,7 +189,14 @@ export default function App() {
           element={<NewApplicationRoute />}
         />
 
-        {/* ==================== ADMIN ==================== */}
+        <Route
+          path="/employee/help"
+          element={<EmployeeHelpSupportRoute />}
+        />
+
+        {/* =====================================================
+           ADMIN
+           ===================================================== */}
 
         <Route
           path="/admin/dashboard"
@@ -198,7 +233,14 @@ export default function App() {
           element={<AdminReportsRoute />}
         />
 
-        {/* ==================== FALLBACK ==================== */}
+        <Route
+          path="/admin/help"
+          element={<AdminHelpSupportRoute />}
+        />
+
+        {/* =====================================================
+           FALLBACK
+           ===================================================== */}
 
         <Route
           path="*"

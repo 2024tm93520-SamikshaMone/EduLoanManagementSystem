@@ -27,3 +27,548 @@ textarea,
 select {
   font-family: inherit;
 }
+
+.help-support-page {
+  min-height: 100vh;
+  margin-left: 212px;
+  padding-top: 72px;
+  background: #f7f7f9;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #211f26;
+}
+
+.help-support-container {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 30px 34px 45px;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.help-support-header {
+  margin-bottom: 24px;
+}
+
+.help-support-header h1 {
+  margin: 0;
+  font-size: 27px;
+  line-height: 1.25;
+  font-weight: 700;
+  color: #211f26;
+}
+
+.help-support-header p {
+  margin: 7px 0 0;
+  max-width: 850px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #69617f;
+}
+
+/* =========================================================
+   SEARCH CARD
+   ========================================================= */
+
+.help-support-search-card {
+  margin-bottom: 28px;
+  padding: 22px 24px;
+  background: linear-gradient(
+    90deg,
+    #fbf4ff 0%,
+    #f8f1ff 100%
+  );
+  border: 1px solid #e4d2f2;
+  border-radius: 10px;
+}
+
+.help-support-search-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 35px;
+}
+
+.help-support-search-content > div:first-child {
+  flex: 1;
+}
+
+.help-support-search-content h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #211f26;
+}
+
+.help-support-search-content p {
+  margin: 6px 0 0;
+  max-width: 520px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #69617f;
+}
+
+.help-support-search {
+  width: 47%;
+  min-width: 350px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  background: #ffffff;
+  border: 1px solid #d9cde2;
+  border-radius: 8px;
+}
+
+.help-support-search:focus-within {
+  border-color: #a100ff;
+  box-shadow: 0 0 0 2px rgba(161, 0, 255, 0.08);
+}
+
+.help-support-search-icon {
+  font-size: 22px;
+  line-height: 1;
+  color: #7b00bd;
+}
+
+.help-support-search input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #211f26;
+  font-size: 13px;
+}
+
+.help-support-search input::placeholder {
+  color: #8b8195;
+}
+
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+
+.help-support-section {
+  margin-bottom: 28px;
+}
+
+.help-support-section-header {
+  margin-bottom: 13px;
+}
+
+.help-support-section-header h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.3;
+  font-weight: 700;
+  color: #211f26;
+}
+
+.help-support-section-header p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: #69617f;
+}
+
+/* =========================================================
+   QUICK HELP
+   ========================================================= */
+
+.help-support-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.help-support-quick-card {
+  min-height: 116px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #ebe5f2;
+  border-radius: 10px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.help-support-quick-card:hover {
+  transform: translateY(-1px);
+  border-color: #ddc9ec;
+  box-shadow: 0 5px 16px rgba(55, 35, 70, 0.07);
+}
+
+.help-support-quick-icon {
+  width: 43px;
+  height: 43px;
+  min-width: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f0ddff;
+  color: #7b00bd;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.help-support-quick-card:nth-child(2)
+  .help-support-quick-icon {
+  background: #e5f5ff;
+  color: #2176a8;
+}
+
+.help-support-quick-card:nth-child(3)
+  .help-support-quick-icon {
+  background: #e3f8ed;
+  color: #18764b;
+}
+
+.help-support-quick-card:nth-child(4)
+  .help-support-quick-icon {
+  background: #fff0df;
+  color: #a25b16;
+}
+
+.help-support-quick-card:nth-child(5)
+  .help-support-quick-icon {
+  background: #ffe5ed;
+  color: #c42b64;
+}
+
+.help-support-quick-card:nth-child(6)
+  .help-support-quick-icon {
+  background: #eee5ff;
+  color: #6630b8;
+}
+
+.help-support-quick-card h3 {
+  margin: 1px 0 6px;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 700;
+  color: #211f26;
+}
+
+.help-support-quick-card p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #69617f;
+}
+
+/* =========================================================
+   FAQ
+   ========================================================= */
+
+.help-support-faq-card {
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #ebe5f2;
+  border-radius: 10px;
+}
+
+.help-support-faq-item {
+  border-bottom: 1px solid #ebe5f2;
+}
+
+.help-support-faq-item:last-child {
+  border-bottom: none;
+}
+
+.help-support-faq-question {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 18px;
+  border: none;
+  background: #ffffff;
+  color: #211f26;
+  text-align: left;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.help-support-faq-question:hover {
+  background: #fcf9ff;
+}
+
+.help-support-faq-chevron {
+  font-size: 17px;
+  color: #69617f;
+  transition: transform 0.15s ease;
+}
+
+.help-support-faq-chevron.open {
+  transform: rotate(180deg);
+  color: #a100ff;
+}
+
+.help-support-faq-answer {
+  padding: 13px 18px 17px;
+  background: #fbf9fd;
+  border-top: 1px solid #f0eaf4;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #69617f;
+}
+
+.help-support-empty {
+  padding: 35px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: #69617f;
+}
+
+/* =========================================================
+   CONTACT SUPPORT
+   ========================================================= */
+
+.help-support-contact-card {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 24px 26px;
+  background: #f5fff9;
+  border: 1px solid #c9ead8;
+  border-radius: 10px;
+}
+
+.help-support-contact-icon {
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background: #dcf7e8;
+  color: #167348;
+
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.help-support-contact-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.help-support-contact-content h2 {
+  margin: 0 0 5px;
+
+  font-size: 18px;
+  font-weight: 700;
+  color: #211f26;
+}
+
+.help-support-contact-content > p {
+  margin: 0 0 16px;
+
+  max-width: 650px;
+
+  font-size: 13px;
+  line-height: 1.5;
+  color: #69617f;
+}
+
+/* =========================================================
+   CONTACT DETAILS
+   ========================================================= */
+
+.help-support-contact-details {
+  display: flex;
+  align-items: center;
+  gap: 42px;
+}
+
+.help-support-contact-details div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.help-support-contact-details span {
+  font-size: 11px;
+  color: #69617f;
+}
+
+.help-support-contact-details strong {
+  font-size: 12px;
+  color: #211f26;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   CONTACT BUTTON
+   ========================================================= */
+
+.help-support-contact-button {
+  min-width: 145px;
+  height: 40px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: auto;
+  padding: 0 20px;
+
+  border: 1px solid #a100ff;
+  border-radius: 7px;
+
+  background: #a100ff;
+  color: #ffffff;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+
+  line-height: 1;
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.help-support-contact-button:hover {
+  background: #7b00bd;
+  border-color: #7b00bd;
+  transform: translateY(-1px);
+}
+
+.help-support-contact-button:active {
+  transform: translateY(0);
+}
+
+.help-support-contact-button:focus-visible {
+  outline: 2px solid #a100ff;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+  .help-support-quick-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .help-support-contact-card {
+    align-items: flex-start;
+  }
+
+  .help-support-contact-details {
+    flex-wrap: wrap;
+    gap: 20px 35px;
+  }
+
+  .help-support-contact-button {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 900px) {
+
+  .help-support-page {
+    margin-left: 0;
+  }
+
+  .help-support-container {
+    padding: 25px 20px 35px;
+  }
+
+  .help-support-search-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .help-support-search {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .help-support-contact-card {
+    align-items: flex-start;
+  }
+
+  .help-support-contact-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .help-support-contact-button {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .help-support-container {
+    padding: 20px 14px 30px;
+  }
+
+  .help-support-header h1 {
+    font-size: 23px;
+  }
+
+  .help-support-quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .help-support-search-card {
+    padding: 18px;
+  }
+
+  .help-support-contact-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .help-support-contact-icon {
+    align-self: flex-start;
+  }
+
+  .help-support-contact-details {
+    width: 100%;
+  }
+
+  .help-support-contact-button {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+.help-support-quick-card {
+  width: 100%;
+  border: 1px solid #ebe5f2;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.help-support-quick-card:focus-visible {
+  outline: 2px solid #a100ff;
+  outline-offset: 2px;
+}
