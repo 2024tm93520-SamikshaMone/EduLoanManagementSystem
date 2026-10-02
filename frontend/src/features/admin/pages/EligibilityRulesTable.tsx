@@ -61,7 +61,7 @@ export default function EligibilityRulesTable() {
     setFormError(null);
   }
 
-  function cancelForm() {
+  function rejectForm() {
     setIsAdding(false);
     setEditingId(null);
     setFormError(null);
@@ -301,11 +301,11 @@ export default function EligibilityRulesTable() {
 
             <button
               type="button"
-              className="admin-master-data-cancel-button"
-              onClick={cancelForm}
+              className="admin-master-data-reject-button"
+              onClick={rejectForm}
               disabled={isSaving}
             >
-              Cancel
+              reject
             </button>
           </div>
         </form>

@@ -1,0 +1,58 @@
+.admin-detail-page {
+  max-width: 900px;
+  margin: 24px auto;
+  padding: 0 24px;
+}
+
+.admin-detail-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #E4E4E9);
+  border-radius: 12px;
+  padding: 32px;
+  margin-top: 16px;
+}
+
+.admin-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.admin-detail-header h1 { margin: 0; font-size: 20px; }
+
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.admin-detail-grid h2 { font-size: 14px; margin: 0 0 10px; color: var(--muted, #6B6B76); text-transform: uppercase; letter-spacing: 0.02em; }
+.admin-detail-grid dl { margin: 0; font-size: 14px; }
+.admin-detail-grid dt { color: var(--muted, #6B6B76); font-size: 12px; margin-top: 8px; }
+.admin-detail-grid dd { margin: 0; }
+
+.admin-detail-actions {
+  border-top: 1px solid var(--border, #E4E4E9);
+  padding-top: 20px;
+  margin-bottom: 20px;
+}
+.admin-detail-actions h2 { font-size: 14px; margin: 0 0 12px; }
+.admin-detail-actions button {
+  margin-right: 8px; margin-bottom: 8px;
+  padding: 8px 16px; border-radius: 8px; border: 1px solid var(--primary, #A100FF);
+  background: #fff; color: var(--primary, #A100FF); cursor: pointer; font-weight: 600; font-size: 13px;
+}
+.admin-detail-actions button:first-of-type { background: var(--primary, #A100FF); color: #fff; }
+.admin-detail-actions button.danger { border-color: #D93025; color: #D93025; }
+
+.admin-detail-action-form {
+  border: 1px solid var(--border, #E4E4E9); border-radius: 8px; padding: 16px; margin-bottom: 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.admin-detail-action-form textarea { min-height: 70px; padding: 8px; border: 1px solid var(--border, #E4E4E9); border-radius: 6px; font-family: inherit; }
+.admin-detail-action-form-buttons { display: flex; gap: 8px; }
+.admin-detail-action-form-buttons button[type="submit"] { width: auto; padding: 8px 20px; }
+
+.admin-detail-history ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.admin-detail-history li { font-size: 13px; border-left: 3px solid var(--primary, #A100FF); padding-left: 12px; }
+.history-comment { color: var(--muted, #6B6B76); font-style: italic; margin-top: 2px; }

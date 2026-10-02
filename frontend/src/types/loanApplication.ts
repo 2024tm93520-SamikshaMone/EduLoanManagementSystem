@@ -17,7 +17,7 @@ export interface LoanApplicationSummary {
   collegeName: string;
   courseName: string;
   requestedAmount: number;
-  status: "Draft" | "Submitted" | "Cancelled";
+  status: "Draft" | "Submitted" | "rejectled";
   createdAt: string;
   submittedAt: string | null;
 }
@@ -36,7 +36,7 @@ export interface LoanApplicationDetail {
   requestedAmount: number;
   requestedTenureMonths: number;
   educationPurpose: string;
-  status: "Draft" | "Submitted" | "Cancelled";
+  status: "Draft" | "Submitted" | "rejectled";
   createdAt: string;
   submittedAt: string | null;
   documents: ApplicationDocument[];

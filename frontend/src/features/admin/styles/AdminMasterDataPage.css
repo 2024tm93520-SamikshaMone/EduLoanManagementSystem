@@ -380,7 +380,7 @@
   cursor: not-allowed;
 }
 
-.admin-master-data-cancel-button {
+.admin-master-data-reject-button {
   padding: 8px 4px;
   border: none;
   background: transparent;
@@ -391,7 +391,7 @@
   cursor: pointer;
 }
 
-.admin-master-data-cancel-button:hover {
+.admin-master-data-reject-button:hover {
   text-decoration: underline;
 }
 

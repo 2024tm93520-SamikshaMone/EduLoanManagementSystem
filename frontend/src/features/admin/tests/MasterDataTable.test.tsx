@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import MasterDataTable from "./MasterDataTable";
-import * as masterDataService from "../../services/masterDataService";
+import MasterDataTable from "../pages/MasterDataTable";
+import * as masterDataService from "../../../services/masterDataService";
 
 const DEPARTMENT_COLUMNS = [
   { key: "name", label: "Name", type: "text" as const },

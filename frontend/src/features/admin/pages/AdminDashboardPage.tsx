@@ -430,8 +430,8 @@ function formatStatus(status: string): string {
     case "draft":
       return "Draft";
 
-    case "cancelled":
-      return "Cancelled";
+    case "rejectled":
+      return "rejectled";
 
     default:
       return status;
@@ -460,8 +460,8 @@ function getStatusClass(status: string): string {
     case "draft":
       return "draft";
 
-    case "cancelled":
-      return "cancelled";
+    case "rejectled":
+      return "rejectled";
 
     default:
       return "";

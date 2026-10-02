@@ -174,7 +174,7 @@
   color: #b42345;
 }
 
-.status-cancelled {
+.status-rejectled {
   background: #eeeeef;
   color: #5e5a66;
 }
@@ -206,7 +206,7 @@
   font-size: 14px;
 }
 
-/* Existing link-button used for cancel */
+/* Existing link-button used for reject */
 .link-button {
   margin-top: 18px;
   padding: 0;

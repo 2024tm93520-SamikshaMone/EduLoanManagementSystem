@@ -22,7 +22,7 @@ export default function NewApplicationPage() {
           className="link-button"
           onClick={() => navigate("/employee/applications")}
         >
-          Cancel and go back to list
+          reject and go back to list
         </button>
       </div>
     </div>

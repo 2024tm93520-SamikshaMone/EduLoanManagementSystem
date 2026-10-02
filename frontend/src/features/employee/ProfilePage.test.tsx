@@ -122,7 +122,7 @@ describe("ProfilePage", () => {
     expect(await screen.findByText(/could not update your profile/i)).toBeInTheDocument();
   });
 
-  it("cancel button discards the edit and restores the original value", async () => {
+  it("reject button discards the edit and restores the original value", async () => {
     vi.spyOn(profileService, "getMyProfile").mockResolvedValue(SAMPLE_PROFILE);
     const user = userEvent.setup();
     render(<ProfilePage />);
@@ -137,7 +137,7 @@ describe("ProfilePage", () => {
     });
     await user.clear(phoneField);
     await user.type(phoneField, "0000000000");
-    await user.click(screen.getByRole("button", { name: /cancel/i }));
+    await user.click(screen.getByRole("button", { name: /reject/i }));
 
    expect(screen.getByText("+91 9876543210")).toBeInTheDocument();
   });

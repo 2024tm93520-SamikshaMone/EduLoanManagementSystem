@@ -57,17 +57,17 @@ export default function ProfilePage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    let rejectled = false;
 
     getMyProfile()
       .then((data) => {
-        if (cancelled) return;
+        if (rejectled) return;
 
         setProfile(data);
         setPhoneInput(data.phoneNumber?.replace(/^\+\d+\s*/, "") ?? "");
       })
       .catch((err) => {
-        if (cancelled) return;
+        if (rejectled) return;
         setLoadError(
           err instanceof ProfileError
             ? err.message
@@ -75,11 +75,11 @@ export default function ProfilePage() {
         );
       })
       .finally(() => {
-        if (!cancelled) setIsLoading(false);
+        if (!rejectled) setIsLoading(false);
       });
 
     return () => {
-      cancelled = true;
+      rejectled = true;
     };
   }, []);
 
@@ -90,7 +90,7 @@ export default function ProfilePage() {
     setPhoneFieldError(null);
   }
 
-  function cancelEditing() {
+  function rejectEditing() {
     setIsEditing(false);
     setPhoneInput(profile?.phoneNumber?.replace(/^\+\d+\s*/, "") ?? "");
     setCountryCode("+91");
@@ -316,10 +316,10 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   className="secondary-button"
-                  onClick={cancelEditing}
+                  onClick={rejectEditing}
                   disabled={isSaving}
                 >
-                  Cancel
+                  reject
                 </button>
               </div>
             </form>

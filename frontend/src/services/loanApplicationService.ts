@@ -81,8 +81,8 @@ export async function submitApplication(id: string): Promise<LoanApplicationDeta
   return handle<LoanApplicationDetail>(res);
 }
 
-export async function cancelApplication(id: string): Promise<LoanApplicationDetail> {
-  const res = await fetch(`${API_BASE_URL}/loan-applications/${id}/cancel`, {
+export async function rejectApplication(id: string): Promise<LoanApplicationDetail> {
+  const res = await fetch(`${API_BASE_URL}/loan-applications/${id}/reject`, {
     method: "POST",
     headers: getAuthHeader(),
   });
