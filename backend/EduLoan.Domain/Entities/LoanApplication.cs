@@ -4,10 +4,16 @@ public enum ApplicationStatus
 {
     Draft,
     Submitted,
+    UnderReview,
+    ManualReview,
+    InfoRequested,
     Approved,
-    Rejected
-    // UnderReview / Approved / Rejected are reserved for the Approval Workflow module —
-    // not used yet since that logic doesn't exist in the system at this point.
+    Rejected,
+    Cancelled,
+    PendingFinance,
+    Processed
+    // Note: existing Reject/Cancel behavior in SubmitAndCancelCommands.cs is unchanged —
+    // these new values are additive only, for the Module 6 approval workflow.
 }
 
 public class LoanApplication

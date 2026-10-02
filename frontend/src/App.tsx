@@ -14,6 +14,7 @@ import AdminMasterDataPage from "./features/admin/pages/AdminMasterDataPage";
 import AdminDashboardPage from "./features/admin/pages/AdminDashboardPage";
 import EligibilityRulesPage from "./features/admin/pages/EligibilityRulesPage";
 import AdminLoanApplicationsPage from "./features/admin/pages/AdminLoanApplicationsPage";
+import AdminLoanApplicationDetailPage from "./features/admin/pages/AdminLoanApplicationDetailPage";
 import AdminEmployeesPage from "./features/admin/pages/AdminEmployeesPage";
 import AdminReportsPage from "./features/admin/pages/AdminReportsPage";
 
@@ -119,6 +120,15 @@ function AdminLoanApplicationsRoute() {
   );
 }
 
+function AdminLoanApplicationDetailRoute() {
+  return (
+    <>
+      <AdminNav />
+      <AdminLoanApplicationDetailPage />
+    </>
+  );
+}
+
 function AdminReportsRoute() {
   return (
     <>
@@ -216,6 +226,11 @@ export default function App() {
         <Route
           path="/admin/applications"
           element={<AdminLoanApplicationsRoute />}
+        />
+
+        <Route
+          path="/admin/applications/:id"
+          element={<AdminLoanApplicationDetailRoute />}
         />
 
         <Route

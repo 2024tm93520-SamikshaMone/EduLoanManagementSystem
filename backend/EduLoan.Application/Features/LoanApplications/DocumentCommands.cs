@@ -55,7 +55,7 @@ public class AddDocumentCommandHandler : IRequestHandler<AddDocumentCommand, App
         if (application.EmployeeId != request.RequestingUserId)
             throw await Fail(new ForbiddenException("You can only add documents to your own application."));
 
-        if (application.Status != ApplicationStatus.Draft)
+        if (application.Status is not (ApplicationStatus.Draft or ApplicationStatus.InfoRequested))
             throw await Fail(new InUseException("Documents can only be added while the application is a draft."));
 
         var document = new ApplicationDocument
@@ -98,7 +98,7 @@ public class RemoveDocumentCommandHandler : IRequestHandler<RemoveDocumentComman
         if (application.EmployeeId != request.RequestingUserId)
             throw new ForbiddenException("You can only remove documents from your own application.");
 
-        if (application.Status != ApplicationStatus.Draft)
+        if (application.Status is not (ApplicationStatus.Draft or ApplicationStatus.InfoRequested))
             throw new InUseException("Documents can only be removed while the application is a draft.");
 
         var document = application.Documents.FirstOrDefault(d => d.Id == request.DocumentId)

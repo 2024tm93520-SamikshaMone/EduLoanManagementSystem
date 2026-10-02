@@ -329,3 +329,30 @@ WHERE ApplicationNumber IN
 SELECT DISTINCT Status
 FROM LoanApplication
 ORDER BY Status;
+GO
+
+
+-- ============================================================
+-- MODULE 6: APPROVAL WORKFLOW STEP
+-- ============================================================
+
+IF OBJECT_ID('dbo.ApprovalWorkflowStep', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ApprovalWorkflowStep
+    (
+        Id            UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
+        ApplicationId UNIQUEIDENTIFIER NOT NULL,
+        ActorUserId   UNIQUEIDENTIFIER NOT NULL,
+        ActorName     NVARCHAR(150) NOT NULL,
+        ActorRole     NVARCHAR(20) NOT NULL,
+        Action        NVARCHAR(30) NOT NULL,
+        Comments      NVARCHAR(500) NULL,
+        ActionedAt    DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+
+        CONSTRAINT FK_ApprovalWorkflowStep_Application
+            FOREIGN KEY (ApplicationId)
+            REFERENCES dbo.LoanApplication(Id)
+            ON DELETE CASCADE
+    );
+END
+GO

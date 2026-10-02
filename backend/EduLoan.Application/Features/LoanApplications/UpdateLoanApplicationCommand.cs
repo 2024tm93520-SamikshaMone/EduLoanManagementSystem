@@ -51,7 +51,7 @@ public class UpdateLoanApplicationCommandHandler : IRequestHandler<UpdateLoanApp
         if (application.EmployeeId != request.RequestingUserId)
             throw new ForbiddenException("You can only edit your own application.");
 
-        if (application.Status != ApplicationStatus.Draft)
+        if (application.Status is not (ApplicationStatus.Draft or ApplicationStatus.InfoRequested))
             throw new InUseException("Only draft applications can be edited.");
 
         var college = await _db.Colleges.FirstOrDefaultAsync(c => c.Id == request.CollegeId && c.IsActive, ct)

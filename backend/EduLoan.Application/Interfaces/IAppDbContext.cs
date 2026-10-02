@@ -13,6 +13,7 @@ public interface IAppDbContext
     IQueryable<PasswordResetOtp> PasswordResetOtps { get; }
     IQueryable<EligibilityRule> EligibilityRules { get; }
     IQueryable<RuleEvaluationResult> RuleEvaluationResults { get; }
+    IQueryable<ApprovalWorkflowStep> ApprovalWorkflowSteps { get; }
 
     void AddDepartment(Department department);
     void AddCollege(College college);
@@ -22,6 +23,7 @@ public interface IAppDbContext
     void AddPasswordResetOtp(PasswordResetOtp otp);
     void AddEligibilityRule(EligibilityRule rule);
     void AddRuleEvaluationResults(IEnumerable<RuleEvaluationResult> results);
+    void AddApprovalWorkflowStep(ApprovalWorkflowStep step);
 
     void RemoveDepartment(Department department);
     void RemoveCollege(College college);
