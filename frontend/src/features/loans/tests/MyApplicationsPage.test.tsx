@@ -17,6 +17,13 @@ const SAMPLE_APPLICATIONS: LoanApplicationSummary[] = [
   },
 ];
 
+function mockApplicationDetailsRequests() {
+  vi.spyOn(globalThis, "fetch").mockResolvedValue({
+    ok: true,
+    json: async () => ({ success: true, data: [] }),
+  } as Response);
+}
+
 describe("MyApplicationsPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -26,6 +33,7 @@ describe("MyApplicationsPage", () => {
     vi.spyOn(loanService, "getMyApplications").mockResolvedValue(
       SAMPLE_APPLICATIONS
     );
+    mockApplicationDetailsRequests();
 
     render(<MyApplicationsPage />);
 
@@ -35,7 +43,9 @@ describe("MyApplicationsPage", () => {
       await screen.findByText("EDL-2026-000001")
     ).toBeInTheDocument();
 
-    expect(screen.getByText("Submitted")).toBeInTheDocument();
+    expect(
+      screen.getByText("Submitted", { selector: ".status-badge" })
+    ).toBeInTheDocument();
   });
 
   it("shows an empty state when there are no applications", async () => {
@@ -70,6 +80,7 @@ describe("MyApplicationsPage", () => {
     vi.spyOn(loanService, "getMyApplications").mockResolvedValue(
       SAMPLE_APPLICATIONS
     );
+    mockApplicationDetailsRequests();
 
     render(<MyApplicationsPage />);
 

@@ -10,6 +10,10 @@ import {
   submitApplication,
 } from "../../../services/loanApplicationService";
 import type { LoanApplicationDetail, LookupItem } from "../../../types/loanApplication";
+import { getEmployeeDocuments, type EmployeeDocument } from "../../../services/employeeDocumentService";
+import { attachLibraryDocument } from "../../../services/loanApplicationService";
+import { getEligibilityGuidelines, getDocumentRequirements, previewEligibility } from "../../../services/eligibilityPreviewService";
+import type { DocumentRequirement, EligibilityPreview, EligibilityRuleGuideline } from "../../../services/eligibilityPreviewService";
 
 const STEPS = ["Education", "Loan Details", "Documents", "Review & Submit"] as const;
 type Step = (typeof STEPS)[number];
@@ -25,6 +29,10 @@ export default function NewApplicationWizard({ onDone }: NewApplicationWizardPro
   const [colleges, setColleges] = useState<LookupItem[]>([]);
   const [courses, setCourses] = useState<LookupItem[]>([]);
   const [lookupsError, setLookupsError] = useState<string | null>(null);
+  const [guidelines, setGuidelines] = useState<EligibilityRuleGuideline[]>([]);
+  const [eligibilityPreview, setEligibilityPreview] = useState<EligibilityPreview | null>(null);
+  const [eligibilityError, setEligibilityError] = useState<string | null>(null);
+  const [documentRequirements, setDocumentRequirements] = useState<DocumentRequirement[]>([]);
 
   // Education step
   const [collegeId, setCollegeId] = useState<number | "">("");
@@ -49,20 +57,58 @@ export default function NewApplicationWizard({ onDone }: NewApplicationWizardPro
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [docError, setDocError] = useState<string | null>(null);
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
+  const [libraryDocuments, setLibraryDocuments] = useState<EmployeeDocument[]>([]);
+  const [selectedLibraryDocumentId, setSelectedLibraryDocumentId] = useState("");
+  const [isAttachingLibraryDocument, setIsAttachingLibraryDocument] = useState(false);
 
   const [finalError, setFinalError] = useState<string | null>(null);
   const [isFinalSubmitting, setIsFinalSubmitting] = useState(false);
 
   useEffect(() => {
+    let active = true;
+
+    // Core lookup data must not be blocked by an optional eligibility-guidance API.
     Promise.all([getColleges(), getCourses()])
-      .then(([c, co]) => {
-        setColleges(c);
-        setCourses(co);
+      .then(([collegeItems, courseItems]) => {
+        if (!active) return;
+        setColleges(collegeItems);
+        setCourses(courseItems);
+        setLookupsError(null);
       })
-      .catch((err) =>
-        setLookupsError(err instanceof LoanApplicationError ? err.message : "Could not load colleges/courses.")
-      );
+      .catch((err: unknown) => {
+        if (!active) return;
+        setLookupsError(
+          err instanceof LoanApplicationError
+            ? err.message
+            : "Could not load colleges/courses."
+        );
+      });
+
+    getEligibilityGuidelines()
+      .then((rules) => {
+        if (active) setGuidelines(rules);
+      })
+      .catch(() => {
+        // Keep the application wizard usable if guidance is temporarily unavailable.
+        if (active) setGuidelines([]);
+      });
+
+    getEmployeeDocuments().then(items => { if (active) setLibraryDocuments(items); }).catch(() => { if (active) setLibraryDocuments([]); });
+
+    return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (!requestedAmount || Number(requestedAmount) <= 0 || !requestedTenureMonths || Number(requestedTenureMonths) <= 0 || !totalEducationFees || Number(totalEducationFees) <= 0) {
+      setEligibilityPreview(null);
+      return;
+    }
+    let active = true;
+    previewEligibility({ requestedAmount: Number(requestedAmount), requestedTenureMonths: Number(requestedTenureMonths), totalEducationFees: Number(totalEducationFees) })
+      .then(result => { if (active) { setEligibilityPreview(result); setEligibilityError(null); } })
+      .catch(err => { if (active) setEligibilityError(err instanceof Error ? err.message : "Eligibility preview is unavailable; the server will validate before submission."); });
+    return () => { active = false; };
+  }, [requestedAmount, requestedTenureMonths, totalEducationFees]);
 
   function validateEducationStep(): string | null {
     if (!collegeId) return "Please select a college.";
@@ -153,6 +199,19 @@ export default function NewApplicationWizard({ onDone }: NewApplicationWizardPro
     }
   }
 
+  async function handleAttachLibraryDocument() {
+    if (!application || !selectedLibraryDocumentId) return;
+    setDocError(null); setIsAttachingLibraryDocument(true);
+    try {
+      const doc = await attachLibraryDocument(application.id, selectedLibraryDocumentId);
+      setApplication(current => current ? { ...current, documents: [...current.documents, doc] } : current);
+      setLibraryDocuments(current => current.filter(item => item.id !== selectedLibraryDocumentId));
+      setSelectedLibraryDocumentId("");
+    } catch (err) {
+      setDocError(err instanceof LoanApplicationError ? err.message : "Could not attach library document.");
+    } finally { setIsAttachingLibraryDocument(false); }
+  }
+
   async function handleRemoveDocument(documentId: string) {
     if (!application) return;
     try {
@@ -235,6 +294,11 @@ export default function NewApplicationWizard({ onDone }: NewApplicationWizardPro
 
       {currentStep === "Education" && (
         <div className="wizard-panel">
+          <section className="eligibility-guidelines" aria-label="Eligibility and loan guidelines">
+            <h2>Eligibility &amp; Loan Guidelines</h2>
+            <p>These rules are maintained by your administrator. Your final eligibility is validated by the server before submission.</p>
+            {guidelines.length === 0 ? <p>Configured rules are currently unavailable. You can continue; eligibility will be checked before submission.</p> : <ul>{guidelines.map(rule => <li key={rule.id}><strong>{rule.ruleName}</strong> — {rule.conditionField} {rule.operator} {rule.conditionValue.toLocaleString("en-IN")} ({rule.severity.toLowerCase()}). {rule.errorMessage}</li>)}</ul>}
+          </section>
           <div className="form-group">
             <label htmlFor="college">College</label>
             <select id="college" value={collegeId} onChange={(e) => setCollegeId(Number(e.target.value) || "")}>
@@ -280,6 +344,16 @@ export default function NewApplicationWizard({ onDone }: NewApplicationWizardPro
 
       {currentStep === "Loan Details" && (
         <div className="wizard-panel">
+          <section className="eligibility-guidelines" aria-label="Live eligibility check">
+            <h2>Eligibility Check</h2>
+            {eligibilityError && <p role="status">{eligibilityError}</p>}
+            {eligibilityPreview ? <>
+              <p>Monthly salary: <strong>₹{eligibilityPreview.monthlySalary.toLocaleString("en-IN")}</strong> · Service: <strong>{eligibilityPreview.tenureMonths} months</strong></p>
+              {eligibilityPreview.maximumEligibleAmount !== null && <p>Configured maximum amount: <strong>₹{eligibilityPreview.maximumEligibleAmount.toLocaleString("en-IN")}</strong></p>}
+              <ul>{eligibilityPreview.results.map(result => <li key={result.ruleId}>{result.passed ? "✓" : result.severity === "Warning" ? "⚠" : "✕"} <strong>{result.ruleName}</strong>: {result.passed ? "Passed" : (result.failureMessage || "Needs review")}</li>)}</ul>
+              {eligibilityPreview.hasBlockingFailures && <p role="alert" className="form-error">One or more blocking rules currently fail. Adjust your details before submitting.</p>}
+            </> : <p>Enter the amount, tenure and education fees to check the configured eligibility rules.</p>}
+          </section>
           <div className="form-group">
             <label htmlFor="requestedAmount">Requested Loan Amount (₹)</label>
             <input
@@ -307,7 +381,26 @@ export default function NewApplicationWizard({ onDone }: NewApplicationWizardPro
 
       {currentStep === "Documents" && application && (
         <div className="wizard-panel">
+          {documentRequirements.length > 0 && <section className="document-requirements-panel" aria-label="Configured document requirements">
+            <h3>Document checklist</h3>
+            <p>Requirements are maintained by administrators. Additional documents may be requested during review.</p>
+            {Object.entries(documentRequirements.reduce<Record<string, DocumentRequirement[]>>((groups, item) => {
+              (groups[item.category] ||= []).push(item); return groups;
+            }, {})).map(([category, items]) => <div key={category} className="document-requirement-group"><h4>{category}</h4><ul>{items.map(item => <li key={item.id}><strong>{item.displayName}</strong> — {item.isRequired ? "Required" : "Optional"}{item.requiresCollateral ? " · Security/collateral related" : ""}</li>)}</ul></div>)}
+          </section>}
           <p className="wizard-hint">Add at least one supporting document (e.g. Admission Letter, Fee Receipt). PDF, JPG, or PNG, up to 5 MB.</p>
+          <section className="document-library-picker" aria-labelledby="saved-document-picker-heading">
+            <h3 id="saved-document-picker-heading">Use a document from My Documents</h3>
+            <p>Choose a document you uploaded earlier. A separate application copy is attached, so your library original remains safe.</p>
+            {libraryDocuments.length === 0 ? <p>No saved documents found. <a href="/employee/documents">Upload documents to My Documents</a>.</p> : <div className="document-library-picker-row">
+              <label htmlFor="saved-document-select" className="sr-only">Saved document</label>
+              <select id="saved-document-select" aria-label="Saved document" value={selectedLibraryDocumentId} onChange={e => setSelectedLibraryDocumentId(e.target.value)}>
+                <option value="">Select a saved document</option>
+                {libraryDocuments.map(doc => <option key={doc.id} value={doc.id}>{doc.documentType} — {doc.fileName}</option>)}
+              </select>
+              <button type="button" onClick={() => void handleAttachLibraryDocument()} disabled={!selectedLibraryDocumentId || isAttachingLibraryDocument}>{isAttachingLibraryDocument ? "Attaching…" : "Attach selected"}</button>
+            </div>}
+          </section>
           <form onSubmit={handleAddDocument} className="document-form">
             <input
               aria-label="Document Type"

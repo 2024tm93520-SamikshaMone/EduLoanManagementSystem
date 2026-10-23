@@ -108,6 +108,13 @@ export async function addDocument(
   return handle<ApplicationDocument>(res);
 }
 
+export async function attachLibraryDocument(applicationId: string, libraryDocumentId: string): Promise<ApplicationDocument> {
+  const res = await fetch(`${API_BASE_URL}/loan-applications/${applicationId}/documents/from-library/${libraryDocumentId}`, {
+    method: "POST", headers: getAuthHeader(),
+  });
+  return handle<ApplicationDocument>(res);
+}
+
 export async function removeDocument(applicationId: string, documentId: string): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/loan-applications/${applicationId}/documents/${documentId}`, {
     method: "DELETE",

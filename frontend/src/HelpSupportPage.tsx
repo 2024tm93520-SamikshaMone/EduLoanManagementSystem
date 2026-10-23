@@ -24,7 +24,6 @@ export default function HelpSupportPage() {
     const path = window.location.pathname.toLowerCase();
 
     if (path.startsWith("/admin")) return "Admin";
-    if (path.startsWith("/hr")) return "HR";
     if (path.startsWith("/finance")) return "Finance";
 
     return "Employee";
@@ -139,7 +138,7 @@ export default function HelpSupportPage() {
 
     Admin: {
       subtitle:
-        "Find guidance for employee management, master data, eligibility rules, applications and reports.",
+        "Find guidance for employee verification, education documents, eligibility assessment, applications and reports.",
 
       quickHelp: [
         {
@@ -173,9 +172,9 @@ export default function HelpSupportPage() {
           icon: "▤",
         },
         {
-          title: "Application Workflow",
+          title: "Application Assessment",
           description:
-            "Understand the application review, approval and rejection flow.",
+            "Review admission and fee documents, eligibility rule results and similar historical cases before recording a decision.",
           icon: "↻",
         },
       ],
@@ -210,87 +209,6 @@ export default function HelpSupportPage() {
           question: "What is the application workflow?",
           answer:
             "The application workflow supports review, validation, approval, rejection and request-for-information scenarios.",
-        },
-        {
-          question: "How can I contact support?",
-          answer:
-            "Use the Contact Support section at the bottom of this page to contact the support team.",
-        },
-      ],
-    },
-
-    /* =======================================================
-       HR
-       ======================================================= */
-
-    HR: {
-      subtitle:
-        "Find guidance for employee information, application review, workflow and education insights.",
-
-      quickHelp: [
-        {
-          title: "Employee Information",
-          description:
-            "View employee information relevant to the education loan process.",
-          icon: "♙",
-        },
-        {
-          title: "Loan Applications",
-          description:
-            "Review employee education loan applications assigned for HR processing.",
-          icon: "?",
-        },
-        {
-          title: "Application Review",
-          description:
-            "Review submitted information and supporting documents during the workflow.",
-          icon: "▣",
-        },
-        {
-          title: "Eligibility",
-          description:
-            "Review the eligibility results generated from the configured rules.",
-          icon: "✓",
-        },
-        {
-          title: "Reports",
-          description:
-            "View application and employee education insights available to HR.",
-          icon: "▤",
-        },
-        {
-          title: "Workflow",
-          description:
-            "Understand review, request-for-information, approval and rejection stages.",
-          icon: "↻",
-        },
-      ],
-
-      faqs: [
-        {
-          question: "Where can I review employee loan applications?",
-          answer:
-            "Open Loan Applications to review the applications available to HR and inspect their submitted information.",
-        },
-        {
-          question: "What information can HR review?",
-          answer:
-            "HR can review employee, education, loan and supporting document information available within the application workflow.",
-        },
-        {
-          question: "Where can I view eligibility results?",
-          answer:
-            "Open the relevant loan application to review the eligibility checks and their results.",
-        },
-        {
-          question: "Can an application be sent back for more information?",
-          answer:
-            "The workflow supports requesting additional information when the submitted application requires clarification or missing details.",
-        },
-        {
-          question: "Where can I view education insights?",
-          answer:
-            "Use the available Reports section to review employee education and application-related insights.",
         },
         {
           question: "How can I contact support?",

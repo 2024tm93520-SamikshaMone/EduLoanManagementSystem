@@ -412,6 +412,14 @@ export default function AdminNav() {
           </Link>
 
           <Link
+            to="/admin/document-requirements"
+            className={`admin-sidebar-link ${isActive("/admin/document-requirements") ? "active" : ""}`}
+          >
+            <NavIcon name="rules" />
+            <span>Document Requirements</span>
+          </Link>
+
+          <Link
             to="/admin/reports"
             className={`admin-sidebar-link ${isActive("/admin/reports")
                 ? "active"

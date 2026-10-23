@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import NewApplicationWizard from "../pages/NewApplicationWizard";
 import * as loanService from "../../../services/loanApplicationService";
+import * as eligibilityService from "../../../services/eligibilityPreviewService";
+import * as employeeDocumentService from "../../../services/employeeDocumentService";
 import type { LoanApplicationDetail } from "../../../types/loanApplication";
 
 const COLLEGES = [{ id: 1, name: "BITS Pilani" }];
@@ -42,6 +44,19 @@ describe("NewApplicationWizard", () => {
     vi.restoreAllMocks();
     vi.spyOn(loanService, "getColleges").mockResolvedValue(COLLEGES);
     vi.spyOn(loanService, "getCourses").mockResolvedValue(COURSES);
+    vi.spyOn(employeeDocumentService, "getEmployeeDocuments").mockResolvedValue([{ id: "lib-1", documentType: "PAN", fileName: "pan.pdf", contentType: "application/pdf", fileSizeBytes: 1024, uploadedAtUtc: "2026-09-01T00:00:00Z" }]);
+    vi.spyOn(loanService, "attachLibraryDocument").mockResolvedValue({ id: "app-doc-1", documentType: "PAN", fileName: "pan.pdf", fileSizeBytes: 1024, uploadedAt: "2026-09-01T00:00:00Z" });
+    // The wizard now loads eligibility rules alongside college/course lookups.
+    // Mock these APIs so the component tests stay isolated from the real backend.
+    vi.spyOn(eligibilityService, "getEligibilityGuidelines").mockResolvedValue([]);
+    vi.spyOn(eligibilityService, "previewEligibility").mockResolvedValue({
+      monthlySalary: 65000,
+      tenureMonths: 36,
+      maximumEligibleAmount: 500000,
+      hasBlockingFailures: false,
+      rules: [],
+      results: [],
+    });
   });
 
   it("blocks moving to step 2 when required education fields are missing", async () => {
@@ -113,6 +128,25 @@ describe("NewApplicationWizard", () => {
 
     await user.click(screen.getByRole("button", { name: /remove/i }));
     await waitFor(() => expect(screen.queryByText("admit.pdf", { exact: false })).not.toBeInTheDocument());
+  });
+
+
+  it("attaches an existing document from My Documents to the draft application", async () => {
+    vi.spyOn(loanService, "createApplication").mockResolvedValue(DRAFT_APPLICATION);
+    const attachSpy = vi.spyOn(loanService, "attachLibraryDocument");
+    const user = userEvent.setup();
+    render(<NewApplicationWizard />);
+    await screen.findByLabelText(/college/i);
+    await fillEducationStep(user);
+    await user.type(screen.getByLabelText(/requested loan amount/i), "400000");
+    await user.type(screen.getByLabelText(/repayment tenure/i), "36");
+    await user.type(screen.getByLabelText(/purpose/i), "MTech at BITS");
+    await user.click(screen.getByRole("button", { name: /^next$/i }));
+    await screen.findByText(/use a document from my documents/i);
+    await user.selectOptions(screen.getByLabelText(/saved document/i), "lib-1");
+    await user.click(screen.getByRole("button", { name: /attach selected/i }));
+    await waitFor(() => expect(attachSpy).toHaveBeenCalledWith("app-1", "lib-1"));
+    expect(await screen.findByText("pan.pdf", { exact: false })).toBeInTheDocument();
   });
 
   it("submits the application from the Review step and calls onDone", async () => {

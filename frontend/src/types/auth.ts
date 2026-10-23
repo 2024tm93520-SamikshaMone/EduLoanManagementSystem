@@ -1,4 +1,4 @@
-export type UserRole = "Employee" | "Admin" | "HR" | "Finance";
+export type UserRole = "Employee" | "Admin" | "Finance";
 
 export interface LoginRequest {
   email: string;

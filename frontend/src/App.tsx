@@ -8,6 +8,7 @@ import {
 
 import LoginPage from "./features/auth/LoginPage";
 import ProfilePage from "./features/employee/ProfilePage";
+import DocumentsPage from "./features/employee/DocumentsPage";
 import HelpSupportPage from "./HelpSupportPage";
 
 import AdminMasterDataPage from "./features/admin/pages/AdminMasterDataPage";
@@ -25,6 +26,8 @@ import EmployeeNav from "./components/EmployeeNav";
 import AdminNav from "./components/AdminNav";
 
 import PasswordPage from "./features/auth/PasswordPage";
+import FinanceDashboardPage from "./features/finance/FinanceDashboardPage";
+import DocumentRequirementsPage from "./features/admin/pages/DocumentRequirementsPage";
 
 /* =========================================================
    LOGIN
@@ -69,6 +72,13 @@ function NewApplicationRoute() {
       <NewApplicationPage />
     </>
   );
+}
+
+function EmployeeDocumentsRoute() {
+  return (<>
+    <EmployeeNav />
+    <DocumentsPage />
+  </>);
 }
 
 function EmployeeHelpSupportRoute() {
@@ -199,10 +209,14 @@ export default function App() {
           element={<NewApplicationRoute />}
         />
 
+        <Route path="/employee/documents" element={<EmployeeDocumentsRoute />} />
+
         <Route
           path="/employee/help"
           element={<EmployeeHelpSupportRoute />}
         />
+
+        <Route path="/finance/dashboard" element={<FinanceDashboardPage />} />
 
         {/* =====================================================
            ADMIN
@@ -221,6 +235,11 @@ export default function App() {
         <Route
           path="/admin/eligibility-rules"
           element={<AdminEligibilityRulesRoute />}
+        />
+
+        <Route
+          path="/admin/document-requirements"
+          element={<><AdminNav /><DocumentRequirementsPage /></>}
         />
 
         <Route
