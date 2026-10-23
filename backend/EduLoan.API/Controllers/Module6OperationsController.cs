@@ -92,6 +92,7 @@ public sealed class Module6OperationsController : ControllerBase
         app.Status = ApplicationStatus.InfoRequested; app.UpdatedAt = DateTime.UtcNow;
         _db.InformationRequests.Add(rfi);
         _db.ApprovalWorkflowSteps.Add(new ApprovalWorkflowStep { Id = Guid.NewGuid(), ApplicationId = app.Id, ActorUserId = actor.Id, ActorName = actor.FullName, ActorRole = actor.Role == UserRole.HR ? UserRole.Admin.ToString() : actor.Role.ToString(), Action = WorkflowAction.RequestedInfo, Comments = $"{rfi.Question} Reason: {rfi.Reason}" });
+        _db.Notifications.Add(new Notification { Id = Guid.NewGuid(), UserId = app.EmployeeId, Title = "Additional information requested", Message = $"HR/Admin requested more information for application {app.ApplicationNumber}: {rfi.Question}", Category = "Application", Link = "/employee/applications", CreatedAtUtc = DateTime.UtcNow });
         await _db.SaveChangesAsync(ct);
         return Ok(ApiResponse<object>.SuccessResponse(new { rfi.Id, Status = rfi.Status.ToString() }, "Information request created."));
     }
@@ -118,6 +119,9 @@ public sealed class Module6OperationsController : ControllerBase
         // Keep the application in Information Requested until every active request is resolved.
         rfi.Application.Status = ApplicationStatus.InfoRequested; rfi.Application.UpdatedAt = DateTime.UtcNow;
         _db.ApprovalWorkflowSteps.Add(new ApprovalWorkflowStep { Id = Guid.NewGuid(), ApplicationId = rfi.ApplicationId, ActorUserId = actor.Id, ActorName = actor.FullName, ActorRole = actor.Role == UserRole.HR ? UserRole.Admin.ToString() : actor.Role.ToString(), Action = WorkflowAction.Resubmitted, Comments = "Employee submitted an RFI response." });
+        var reviewerIds = await _db.Users.Where(u => u.IsActive && (u.Role == UserRole.Admin || u.Role == UserRole.HR)).Select(u => u.Id).ToListAsync(ct);
+        foreach (var reviewerId in reviewerIds)
+            _db.Notifications.Add(new Notification { Id = Guid.NewGuid(), UserId = reviewerId, Title = "Employee information received", Message = $"{actor.FullName} responded to an information request for application {rfi.Application!.ApplicationNumber}.", Category = "Application", Link = $"/admin/applications/{rfi.ApplicationId}", CreatedAtUtc = DateTime.UtcNow });
         await _db.SaveChangesAsync(ct);
         return Ok(ApiResponse<object>.SuccessResponse(new { rfi.Id, Status = rfi.Status.ToString() }, "Response submitted."));
     }
@@ -240,7 +244,9 @@ public sealed class Module6OperationsController : ControllerBase
         if (request.ProcessedAmount > app.RequestedAmount) return BadRequest(ApiResponse<object>.FailureResponse("Confirmed amount cannot exceed the requested amount."));
         h.ConfirmationReference = request.ConfirmationReference.Trim(); h.ConfirmationDateUtc = request.ConfirmationDateUtc; h.ProcessedAmount = request.ProcessedAmount; h.Status = "Processing Confirmed"; h.FinanceComments = request.Comments; h.UpdatedAtUtc = DateTime.UtcNow;
         app.Status = ApplicationStatus.Processed; app.UpdatedAt = DateTime.UtcNow;
-        await Audit(app.Id, WorkflowAction.ConfirmedProcessed, "External bank processing confirmation recorded. Reference: " + h.ConfirmationReference, ct); await _db.SaveChangesAsync(ct);
+        await Audit(app.Id, WorkflowAction.ConfirmedProcessed, "External bank processing confirmation recorded. Reference: " + h.ConfirmationReference, ct);
+        _db.Notifications.Add(new Notification { Id = Guid.NewGuid(), UserId = app.EmployeeId, Title = "Bank processing confirmed", Message = $"External processing confirmation was recorded for application {app.ApplicationNumber}. Reference: {h.ConfirmationReference}.", Category = "Finance", Link = "/employee/applications", CreatedAtUtc = DateTime.UtcNow });
+        await _db.SaveChangesAsync(ct);
         return Ok(ApiResponse<object>.SuccessResponse(new { h.Id, h.Status, ApplicationStatus = app.Status.ToString() }, "Processing confirmation recorded. No funds were transferred by this system."));
     }
 
@@ -254,7 +260,9 @@ public sealed class Module6OperationsController : ControllerBase
         var h = await _db.FinanceHandoffs.FirstOrDefaultAsync(x => x.ApplicationId == app.Id, ct);
         if (h is null || h.Status != "Awaiting Bank Confirmation") return Conflict(ApiResponse<object>.FailureResponse("Only bank-submitted applications can be marked failed."));
         h.Status = "Processing Failed"; h.FailureReason = request.FailureReason.Trim(); h.FinanceComments = request.Comments; h.UpdatedAtUtc = DateTime.UtcNow;
-        await Audit(app.Id, WorkflowAction.ProcessingFailed, "External bank processing failed: " + h.FailureReason, ct); await _db.SaveChangesAsync(ct);
+        await Audit(app.Id, WorkflowAction.ProcessingFailed, "External bank processing failed: " + h.FailureReason, ct);
+        _db.Notifications.Add(new Notification { Id = Guid.NewGuid(), UserId = app.EmployeeId, Title = "Bank processing needs attention", Message = $"Bank processing for application {app.ApplicationNumber} could not be confirmed. The Finance team will review the issue.", Category = "Finance", Link = "/employee/applications", CreatedAtUtc = DateTime.UtcNow });
+        await _db.SaveChangesAsync(ct);
         return Ok(ApiResponse<object>.SuccessResponse(new { h.Id, h.Status }, "Bank processing failure recorded."));
     }
 

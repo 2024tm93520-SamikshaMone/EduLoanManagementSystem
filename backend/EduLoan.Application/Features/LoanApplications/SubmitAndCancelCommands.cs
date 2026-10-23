@@ -107,6 +107,22 @@ public class SubmitLoanApplicationCommandHandler : IRequestHandler<SubmitLoanApp
             });
         }
 
+        var reviewers = await _db.Users
+            .Where(u => u.IsActive && (u.Role == UserRole.Admin || u.Role == UserRole.HR))
+            .Select(u => u.Id)
+            .ToListAsync(ct);
+        foreach (var reviewerId in reviewers)
+        {
+            _db.AddNotification(new Notification
+            {
+                Id = Guid.NewGuid(), UserId = reviewerId,
+                Title = isResubmission ? "Application resubmitted" : "New loan application submitted",
+                Message = $"{employee.FullName} submitted application {application.ApplicationNumber} for review.",
+                Category = "Application", Link = $"/admin/applications/{application.Id}",
+                CreatedAtUtc = DateTime.UtcNow
+            });
+        }
+
         await _db.SaveChangesAsync(ct);
 
         return application.ToDetailDto(evaluationRows);

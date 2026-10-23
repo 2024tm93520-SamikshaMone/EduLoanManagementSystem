@@ -44,6 +44,25 @@ internal static class WorkflowTransition
             Comments = string.IsNullOrWhiteSpace(comments) ? null : comments.Trim(),
         });
 
+        var now = DateTime.UtcNow;
+        if (newStatus == ApplicationStatus.PendingFinance)
+        {
+            var financeUsers = await db.Users.Where(u => u.IsActive && u.Role == UserRole.Finance).Select(u => u.Id).ToListAsync(ct);
+            foreach (var financeUserId in financeUsers)
+                db.AddNotification(new Notification { Id = Guid.NewGuid(), UserId = financeUserId, Title = "New Finance handoff", Message = $"Application {application.ApplicationNumber} is ready for Finance processing.", Category = "Finance", Link = "/finance/dashboard", CreatedAtUtc = now });
+        }
+        else if (newStatus is ApplicationStatus.Approved or ApplicationStatus.Rejected or ApplicationStatus.InfoRequested or ApplicationStatus.Processed)
+        {
+            var title = newStatus switch
+            {
+                ApplicationStatus.Approved => "Loan application approved",
+                ApplicationStatus.Rejected => "Loan application rejected",
+                ApplicationStatus.InfoRequested => "Additional information requested",
+                _ => "Bank processing confirmed"
+            };
+            db.AddNotification(new Notification { Id = Guid.NewGuid(), UserId = application.EmployeeId, Title = title, Message = $"Application {application.ApplicationNumber} status is now {newStatus}." + (string.IsNullOrWhiteSpace(comments) ? string.Empty : $" Note: {comments.Trim()}"), Category = "Application", Link = "/employee/applications", CreatedAtUtc = now });
+        }
+
         await db.SaveChangesAsync(ct);
         return new WorkflowResultDto(application.Id, application.ApplicationNumber, application.Status.ToString());
     }

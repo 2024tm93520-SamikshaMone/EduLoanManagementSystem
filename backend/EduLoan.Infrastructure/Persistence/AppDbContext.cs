@@ -23,6 +23,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<InformationRequestResponse> InformationRequestResponses => Set<InformationRequestResponse>();
     public DbSet<FinanceHandoff> FinanceHandoffs => Set<FinanceHandoff>();
     public DbSet<DocumentRequirement> DocumentRequirements => Set<DocumentRequirement>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     IQueryable<Department> IAppDbContext.Departments => Departments;
     IQueryable<College> IAppDbContext.Colleges => Colleges;
@@ -37,6 +38,7 @@ public class AppDbContext : DbContext, IAppDbContext
     IQueryable<InformationRequest> IAppDbContext.InformationRequests => InformationRequests;
     IQueryable<InformationRequestResponse> IAppDbContext.InformationRequestResponses => InformationRequestResponses;
     IQueryable<FinanceHandoff> IAppDbContext.FinanceHandoffs => FinanceHandoffs;
+    IQueryable<Notification> IAppDbContext.Notifications => Notifications;
 
     public void AddDepartment(Department department) => Departments.Add(department);
     public void AddCollege(College college) => Colleges.Add(college);
@@ -50,6 +52,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public void AddInformationRequest(InformationRequest request) => InformationRequests.Add(request);
     public void AddInformationRequestResponse(InformationRequestResponse response) => InformationRequestResponses.Add(response);
     public void AddFinanceHandoff(FinanceHandoff handoff) => FinanceHandoffs.Add(handoff);
+    public void AddNotification(Notification notification) => Notifications.Add(notification);
 
     public void RemoveDepartment(Department department) => Departments.Remove(department);
     public void RemoveCollege(College college) => Colleges.Remove(college);
@@ -59,6 +62,18 @@ public class AppDbContext : DbContext, IAppDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.ToTable("Notification");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Title).HasMaxLength(160).IsRequired();
+            entity.Property(x => x.Message).HasMaxLength(1000).IsRequired();
+            entity.Property(x => x.Category).HasMaxLength(40).IsRequired();
+            entity.Property(x => x.Link).HasMaxLength(300);
+            entity.HasIndex(x => new { x.UserId, x.ReadAtUtc, x.CreatedAtUtc });
+            entity.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.ToTable("Users");

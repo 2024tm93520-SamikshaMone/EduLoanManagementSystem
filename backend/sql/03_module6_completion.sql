@@ -597,3 +597,128 @@ WHERE fk.name IN
 )
 ORDER BY fk.name;
 GO
+
+
+USE EduLoanDB;
+GO
+
+DECLARE @UserId UNIQUEIDENTIFIER;
+
+SELECT TOP (1) @UserId = Id
+FROM dbo.Users
+WHERE FullName = N'Samiksha Mone';
+
+IF @UserId IS NULL
+BEGIN
+    ;THROW 50001,
+        'User not found. Check the FullName and Email in dbo.Users.',
+        1;
+END;
+
+INSERT INTO dbo.Notification
+(
+    Id,
+    UserId,
+    Title,
+    Message,
+    Category,
+    Link,
+    CreatedAtUtc,
+    ReadAtUtc
+)
+VALUES
+(
+    NEWID(),
+    @UserId,
+    N'Loan Application Update',
+    N'This is a test notification. Your notification system is connected successfully.',
+    N'Application',
+    N'/employee/applications',
+    SYSUTCDATETIME(),
+    NULL
+);
+
+SELECT
+    Id,
+    UserId,
+    Title,
+    Message,
+    Category,
+    CreatedAtUtc,
+    ReadAtUtc
+FROM dbo.Notification
+WHERE UserId = @UserId
+ORDER BY CreatedAtUtc DESC;
+GO
+
+
+USE EduLoanDB;
+GO
+
+DECLARE @AdminUserId UNIQUEIDENTIFIER;
+DECLARE @FinanceUserId UNIQUEIDENTIFIER;
+
+-- Find an HR/Admin user.
+SELECT TOP (1) @AdminUserId = Id
+FROM dbo.Users
+WHERE Role IN (N'Admin', N'HR', N'HRAdmin')
+ORDER BY FullName;
+
+-- Find a Finance user.
+SELECT TOP (1) @FinanceUserId = Id
+FROM dbo.Users
+WHERE Role IN (N'Finance', N'FinanceUser', N'FinanceTeam')
+ORDER BY FullName;
+
+-- Insert a test notification for HR/Admin.
+IF @AdminUserId IS NOT NULL
+BEGIN
+    INSERT INTO dbo.Notification
+    (
+        Id, UserId, Title, Message, Category,
+        Link, CreatedAtUtc, ReadAtUtc
+    )
+    VALUES
+    (
+        NEWID(), @AdminUserId,
+        N'New Loan Application',
+        N'Test notification for HR/Admin: a loan application is ready for review.',
+        N'Application',
+        N'/admin/applications',
+        SYSUTCDATETIME(), NULL
+    );
+END;
+
+-- Insert a test notification for Finance.
+IF @FinanceUserId IS NOT NULL
+BEGIN
+    INSERT INTO dbo.Notification
+    (
+        Id, UserId, Title, Message, Category,
+        Link, CreatedAtUtc, ReadAtUtc
+    )
+    VALUES
+    (
+        NEWID(), @FinanceUserId,
+        N'Finance Handoff',
+        N'Test notification for Finance: a loan application is ready for processing.',
+        N'Finance',
+        N'/finance',
+        SYSUTCDATETIME(), NULL
+    );
+END;
+
+-- Show notifications created for these roles.
+SELECT
+    u.FullName,
+    u.Email,
+    u.Role,
+    n.Title,
+    n.Message,
+    n.CreatedAtUtc,
+    n.ReadAtUtc
+FROM dbo.Notification AS n
+INNER JOIN dbo.Users AS u ON u.Id = n.UserId
+WHERE n.UserId IN (@AdminUserId, @FinanceUserId)
+ORDER BY n.CreatedAtUtc DESC;
+GO

@@ -17,6 +17,7 @@ public interface IAppDbContext
     IQueryable<InformationRequest> InformationRequests { get; }
     IQueryable<InformationRequestResponse> InformationRequestResponses { get; }
     IQueryable<FinanceHandoff> FinanceHandoffs { get; }
+    IQueryable<Notification> Notifications { get; }
 
     void AddDepartment(Department department);
     void AddCollege(College college);
@@ -30,6 +31,7 @@ public interface IAppDbContext
     void AddInformationRequest(InformationRequest request);
     void AddInformationRequestResponse(InformationRequestResponse response);
     void AddFinanceHandoff(FinanceHandoff handoff);
+    void AddNotification(Notification notification);
 
     void RemoveDepartment(Department department);
     void RemoveCollege(College college);
