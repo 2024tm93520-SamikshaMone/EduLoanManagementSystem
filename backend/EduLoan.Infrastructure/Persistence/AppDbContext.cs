@@ -14,10 +14,15 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<LoanApplication> LoanApplications => Set<LoanApplication>();
     public DbSet<ApplicationDocument> ApplicationDocuments => Set<ApplicationDocument>();
+    public DbSet<EmployeeDocument> EmployeeDocuments => Set<EmployeeDocument>();
     public DbSet<PasswordResetOtp> PasswordResetOtps => Set<PasswordResetOtp>();
     public DbSet<EligibilityRule> EligibilityRules => Set<EligibilityRule>();
     public DbSet<RuleEvaluationResult> RuleEvaluationResults => Set<RuleEvaluationResult>();
     public DbSet<ApprovalWorkflowStep> ApprovalWorkflowSteps => Set<ApprovalWorkflowStep>();
+    public DbSet<InformationRequest> InformationRequests => Set<InformationRequest>();
+    public DbSet<InformationRequestResponse> InformationRequestResponses => Set<InformationRequestResponse>();
+    public DbSet<FinanceHandoff> FinanceHandoffs => Set<FinanceHandoff>();
+    public DbSet<DocumentRequirement> DocumentRequirements => Set<DocumentRequirement>();
 
     IQueryable<Department> IAppDbContext.Departments => Departments;
     IQueryable<College> IAppDbContext.Colleges => Colleges;
@@ -29,6 +34,9 @@ public class AppDbContext : DbContext, IAppDbContext
     IQueryable<EligibilityRule> IAppDbContext.EligibilityRules => EligibilityRules;
     IQueryable<RuleEvaluationResult> IAppDbContext.RuleEvaluationResults => RuleEvaluationResults;
     IQueryable<ApprovalWorkflowStep> IAppDbContext.ApprovalWorkflowSteps => ApprovalWorkflowSteps;
+    IQueryable<InformationRequest> IAppDbContext.InformationRequests => InformationRequests;
+    IQueryable<InformationRequestResponse> IAppDbContext.InformationRequestResponses => InformationRequestResponses;
+    IQueryable<FinanceHandoff> IAppDbContext.FinanceHandoffs => FinanceHandoffs;
 
     public void AddDepartment(Department department) => Departments.Add(department);
     public void AddCollege(College college) => Colleges.Add(college);
@@ -39,6 +47,9 @@ public class AppDbContext : DbContext, IAppDbContext
     public void AddEligibilityRule(EligibilityRule rule) => EligibilityRules.Add(rule);
     public void AddRuleEvaluationResults(IEnumerable<RuleEvaluationResult> results) => RuleEvaluationResults.AddRange(results);
     public void AddApprovalWorkflowStep(ApprovalWorkflowStep step) => ApprovalWorkflowSteps.Add(step);
+    public void AddInformationRequest(InformationRequest request) => InformationRequests.Add(request);
+    public void AddInformationRequestResponse(InformationRequestResponse response) => InformationRequestResponses.Add(response);
+    public void AddFinanceHandoff(FinanceHandoff handoff) => FinanceHandoffs.Add(handoff);
 
     public void RemoveDepartment(Department department) => Departments.Remove(department);
     public void RemoveCollege(College college) => Colleges.Remove(college);
@@ -101,6 +112,8 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(d => d.FileName).HasMaxLength(255).IsRequired();
             entity.Property(d => d.StoredFileName).HasMaxLength(255).IsRequired();
             entity.Property(d => d.ContentType).HasMaxLength(100).IsRequired();
+            entity.Property(d => d.VerificationStatus).HasConversion<string>().HasMaxLength(30);
+            entity.Property(d => d.VerificationComments).HasMaxLength(1000);
             entity.HasOne(d => d.Application).WithMany(a => a.Documents).HasForeignKey(d => d.ApplicationId).OnDelete(DeleteBehavior.Cascade);
         });
         modelBuilder.Entity<PasswordResetOtp>(entity =>
@@ -133,6 +146,61 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(r => r.EvaluatedValue).HasMaxLength(50).IsRequired();
             entity.Property(r => r.FailureMessage).HasMaxLength(300);
             entity.HasOne(r => r.Application).WithMany().HasForeignKey(r => r.ApplicationId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<InformationRequest>(entity =>
+        {
+            entity.ToTable("InformationRequest"); entity.HasKey(x => x.Id);
+            entity.Property(x => x.RequestedByName).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.Question).HasMaxLength(1000).IsRequired();
+            entity.Property(x => x.RequiredDocumentType).HasMaxLength(100);
+            entity.Property(x => x.Reason).HasMaxLength(500).IsRequired();
+            entity.Property(x => x.Instructions).HasMaxLength(1000);
+            entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            entity.HasOne(x => x.Application).WithMany().HasForeignKey(x => x.ApplicationId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<InformationRequestResponse>(entity =>
+        {
+            entity.ToTable("InformationRequestResponse"); entity.HasKey(x => x.Id);
+            entity.Property(x => x.RespondedByName).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.ResponseText).HasMaxLength(2000).IsRequired();
+            entity.Property(x => x.DocumentFileName).HasMaxLength(255);
+            entity.Property(x => x.DocumentStoredFileName).HasMaxLength(255);
+            entity.HasOne(x => x.InformationRequest).WithMany(x => x.Responses).HasForeignKey(x => x.InformationRequestId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.ApplicationDocument).WithMany().HasForeignKey(x => x.ApplicationDocumentId).OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<EmployeeDocument>(entity =>
+        {
+            entity.ToTable("EmployeeDocument"); entity.HasKey(x => x.Id);
+            entity.Property(x => x.DocumentType).HasMaxLength(100).IsRequired();
+            entity.Property(x => x.FileName).HasMaxLength(255).IsRequired();
+            entity.Property(x => x.StoredFileName).HasMaxLength(255).IsRequired();
+            entity.Property(x => x.ContentType).HasMaxLength(100).IsRequired();
+            entity.HasIndex(x => new { x.EmployeeId, x.UploadedAtUtc });
+            entity.HasOne<User>().WithMany().HasForeignKey(x => x.EmployeeId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<DocumentRequirement>(entity =>
+        {
+            entity.ToTable("DocumentRequirement"); entity.HasKey(x => x.Id);
+            entity.Property(x => x.DocumentType).HasMaxLength(100).IsRequired();
+            entity.Property(x => x.DisplayName).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.Category).HasMaxLength(80).IsRequired();
+            entity.Property(x => x.EmploymentType).HasMaxLength(50);
+            entity.Property(x => x.EducationLevel).HasMaxLength(50);
+            entity.Property(x => x.MinimumLoanAmount).HasColumnType("decimal(12,2)");
+            entity.Property(x => x.MaximumLoanAmount).HasColumnType("decimal(12,2)");
+            entity.HasIndex(x => new { x.IsActive, x.DisplayOrder });
+        });
+        modelBuilder.Entity<FinanceHandoff>(entity =>
+        {
+            entity.ToTable("FinanceHandoff"); entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.ApplicationId).IsUnique();
+            entity.Property(x => x.BankReferenceNumber).HasMaxLength(100);
+            entity.Property(x => x.ConfirmationReference).HasMaxLength(100);
+            entity.Property(x => x.ProcessedAmount).HasColumnType("decimal(12,2)");
+            entity.Property(x => x.Status).HasMaxLength(40).IsRequired();
+            entity.Property(x => x.FinanceComments).HasMaxLength(1000);
+            entity.Property(x => x.FailureReason).HasMaxLength(500);
+            entity.HasOne(x => x.Application).WithMany().HasForeignKey(x => x.ApplicationId).OnDelete(DeleteBehavior.Cascade);
         });
         modelBuilder.Entity<ApprovalWorkflowStep>(entity =>
         {

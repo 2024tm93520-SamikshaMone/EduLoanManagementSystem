@@ -115,6 +115,25 @@ public class LoginCommandHandlerTests
         // this test exists mainly to document that guarantee for the report/reviewer.
         Assert.NotNull(result.User);
     }
+    [Fact]
+    public async Task Handle_HrAccount_UsesAdminRoleForTokenAndResponseWithoutChangingStoredRole()
+    {
+        var user = BuildActiveUser("hr@acc.com");
+        user.Role = UserRole.HR;
+        _userRepository.Setup(r => r.GetByEmailAsync(user.Email, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _passwordHasher.Setup(p => p.Verify("correct-password", user.PasswordHash)).Returns(true);
+        _tokenGenerator.Setup(t => t.GenerateAccessToken(It.Is<User>(u => u.Id == user.Id && u.Role == UserRole.Admin)))
+            .Returns("admin-access-token");
+        _tokenGenerator.Setup(t => t.GenerateRefreshToken()).Returns("refresh-token");
+
+        var result = await _handler.Handle(new LoginCommand(user.Email, "correct-password"), CancellationToken.None);
+
+        Assert.Equal(UserRole.Admin, result.User.Role);
+        Assert.Equal("admin-access-token", result.AccessToken);
+        Assert.Equal(UserRole.HR, user.Role); // persisted role remains unchanged
+    }
+
 }
 
 public class LoginCommandValidatorTests

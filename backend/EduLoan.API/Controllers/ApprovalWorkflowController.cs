@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduLoan.API.Controllers;
 
-// Separate controller (not folded into AdminController) so HR/Finance can be
+// Separate controller (not folded into AdminController) so workflow actions remain separated from the AdminController
 // authorized per-action without altering AdminController's class-level Admin-only gate.
 [ApiController]
 [Route("api/v1/admin/applications/{applicationId:guid}")]
@@ -36,7 +36,7 @@ public class ApprovalWorkflowController : ControllerBase
     }
 
     [HttpPost("start-review")]
-    [Authorize(Roles = "Admin,HR")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<WorkflowResultDto>>> StartReview(Guid applicationId, CancellationToken ct)
     {
         var result = await _mediator.Send(new StartReviewCommand(applicationId, ActorId), ct);
@@ -44,7 +44,7 @@ public class ApprovalWorkflowController : ControllerBase
     }
 
     [HttpPost("manual-review")]
-    [Authorize(Roles = "Admin,HR")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<WorkflowResultDto>>> EscalateToManualReview(
         Guid applicationId, [FromBody] CommentRequest request, CancellationToken ct)
     {
@@ -53,7 +53,7 @@ public class ApprovalWorkflowController : ControllerBase
     }
 
     [HttpPost("request-info")]
-    [Authorize(Roles = "Admin,HR")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<WorkflowResultDto>>> RequestInfo(
         Guid applicationId, [FromBody] CommentRequest request, CancellationToken ct)
     {
@@ -62,7 +62,7 @@ public class ApprovalWorkflowController : ControllerBase
     }
 
     [HttpPost("approve")]
-    [Authorize(Roles = "Admin,HR")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<WorkflowResultDto>>> Approve(
         Guid applicationId, [FromBody] CommentRequest request, CancellationToken ct)
     {
@@ -71,7 +71,7 @@ public class ApprovalWorkflowController : ControllerBase
     }
 
     [HttpPost("reject")]
-    [Authorize(Roles = "Admin,HR")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<WorkflowResultDto>>> Reject(
         Guid applicationId, [FromBody] CommentRequest request, CancellationToken ct)
     {

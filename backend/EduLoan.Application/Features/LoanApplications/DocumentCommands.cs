@@ -67,6 +67,7 @@ public class AddDocumentCommandHandler : IRequestHandler<AddDocumentCommand, App
             StoredFileName = request.StoredFileName,
             ContentType = request.ContentType,
             FileSizeBytes = request.FileSizeBytes,
+            UploadedByUserId = request.RequestingUserId,
         };
         _db.AddApplicationDocument(document);
         await _db.SaveChangesAsync(ct);

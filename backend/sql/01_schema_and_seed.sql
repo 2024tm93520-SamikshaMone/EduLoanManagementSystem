@@ -311,25 +311,25 @@ END;
 
 GO
 
-SELECT EmployeeCode, FullName, Email
-FROM dbo.Users
-WHERE EmployeeCode BETWEEN 'EMP1005' AND 'EMP1009';
+-- SELECT EmployeeCode, FullName, Email
+-- FROM dbo.Users
+-- WHERE EmployeeCode BETWEEN 'EMP1005' AND 'EMP1009';
 
-SELECT ApplicationNumber, Status
-FROM dbo.LoanApplication
-WHERE ApplicationNumber IN
-(
-    'ELA-2026-0005',
-    'ELA-2026-0006',
-    'ELA-2026-0007',
-    'ELA-2026-0008',
-    'ELA-2026-0009'
-);
+-- SELECT ApplicationNumber, Status
+-- FROM dbo.LoanApplication
+-- WHERE ApplicationNumber IN
+-- (
+--     'ELA-2026-0005',
+--     'ELA-2026-0006',
+--     'ELA-2026-0007',
+--     'ELA-2026-0008',
+--     'ELA-2026-0009'
+-- );
 
-SELECT DISTINCT Status
-FROM LoanApplication
-ORDER BY Status;
-GO
+-- SELECT DISTINCT Status
+-- FROM LoanApplication
+-- ORDER BY Status;
+-- GO
 
 
 -- ============================================================
@@ -355,4 +355,67 @@ BEGIN
             ON DELETE CASCADE
     );
 END
+GO
+
+USE EduLoanDB;
+GO
+
+-- Find tables related to applications and their primary keys
+SELECT
+    s.name AS SchemaName,
+    t.name AS TableName,
+    c.name AS ColumnName,
+    ty.name AS DataType,
+    CASE WHEN pk.column_id IS NOT NULL
+         THEN 'PRIMARY KEY'
+         ELSE ''
+    END AS KeyType
+FROM sys.tables t
+JOIN sys.schemas s
+    ON s.schema_id = t.schema_id
+JOIN sys.columns c
+    ON c.object_id = t.object_id
+JOIN sys.types ty
+    ON ty.user_type_id = c.user_type_id
+LEFT JOIN (
+    SELECT ic.object_id, ic.column_id
+    FROM sys.indexes i
+    JOIN sys.index_columns ic
+        ON ic.object_id = i.object_id
+       AND ic.index_id = i.index_id
+    WHERE i.is_primary_key = 1
+) pk
+    ON pk.object_id = c.object_id
+   AND pk.column_id = c.column_id
+WHERE t.name LIKE '%Application%'
+   OR t.name LIKE '%Loan%'
+ORDER BY t.name, c.column_id;
+GO
+
+USE EduLoanDB;
+GO
+
+SELECT
+    OBJECT_SCHEMA_NAME(fk.parent_object_id) AS ChildSchema,
+    OBJECT_NAME(fk.parent_object_id) AS ChildTable,
+    fk.name AS ForeignKeyName,
+    OBJECT_SCHEMA_NAME(fk.referenced_object_id) AS ParentSchema,
+    OBJECT_NAME(fk.referenced_object_id) AS ParentTable,
+    COL_NAME(fkc.referenced_object_id,
+             fkc.referenced_column_id) AS ParentColumn
+FROM sys.foreign_keys fk
+JOIN sys.foreign_key_columns fkc
+    ON fkc.constraint_object_id = fk.object_id
+WHERE OBJECT_NAME(fk.parent_object_id) IN
+      ('ApplicationDocument', 'LoanApplication')
+   OR OBJECT_NAME(fk.referenced_object_id) LIKE '%Application%'
+ORDER BY ChildTable, ForeignKeyName;
+GO
+
+USE EduLoanDB;
+GO
+
+SELECT *
+FROM dbo.ApplicationDocument
+WHERE Id = 'bcb3a94b-3810-483d-aa9f-144ac7379866';
 GO

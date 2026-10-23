@@ -2,6 +2,8 @@ namespace EduLoan.Domain.Entities;
 
 // Metadata-only for now — no actual file bytes stored yet. Real file storage
 // (disk/blob) is a follow-up enhancement once the core workflow is proven out.
+public enum DocumentVerificationStatus { Pending, Uploaded, UnderReview, Verified, Rejected, AdditionalDocumentRequested }
+
 public class ApplicationDocument
 {
     public Guid Id { get; set; }
@@ -14,4 +16,10 @@ public class ApplicationDocument
     public string ContentType { get; set; } = "application/octet-stream";
     public long FileSizeBytes { get; set; }
     public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+    public Guid? UploadedByUserId { get; set; }
+    public bool IsRequired { get; set; } = true;
+    public DocumentVerificationStatus VerificationStatus { get; set; } = DocumentVerificationStatus.Uploaded;
+    public Guid? VerifiedByUserId { get; set; }
+    public string? VerificationComments { get; set; }
+    public DateTime? VerifiedAtUtc { get; set; }
 }

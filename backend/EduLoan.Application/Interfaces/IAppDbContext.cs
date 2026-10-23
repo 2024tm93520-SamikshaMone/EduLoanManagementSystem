@@ -14,6 +14,9 @@ public interface IAppDbContext
     IQueryable<EligibilityRule> EligibilityRules { get; }
     IQueryable<RuleEvaluationResult> RuleEvaluationResults { get; }
     IQueryable<ApprovalWorkflowStep> ApprovalWorkflowSteps { get; }
+    IQueryable<InformationRequest> InformationRequests { get; }
+    IQueryable<InformationRequestResponse> InformationRequestResponses { get; }
+    IQueryable<FinanceHandoff> FinanceHandoffs { get; }
 
     void AddDepartment(Department department);
     void AddCollege(College college);
@@ -24,6 +27,9 @@ public interface IAppDbContext
     void AddEligibilityRule(EligibilityRule rule);
     void AddRuleEvaluationResults(IEnumerable<RuleEvaluationResult> results);
     void AddApprovalWorkflowStep(ApprovalWorkflowStep step);
+    void AddInformationRequest(InformationRequest request);
+    void AddInformationRequestResponse(InformationRequestResponse response);
+    void AddFinanceHandoff(FinanceHandoff handoff);
 
     void RemoveDepartment(Department department);
     void RemoveCollege(College college);

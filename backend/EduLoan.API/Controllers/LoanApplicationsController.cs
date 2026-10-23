@@ -1,4 +1,6 @@
 using EduLoan.Application.Common;
+using EduLoan.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using EduLoan.Application.Features.LoanApplications;
 using EduLoan.Application.Interfaces;
 using MediatR;
@@ -15,15 +17,17 @@ public class LoanApplicationsController : ControllerBase
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
     private readonly IFileStorageService _fileStorage;
+    private readonly AppDbContext _db;
 
     private static readonly string[] AllowedExtensions = { ".pdf", ".jpg", ".jpeg", ".png" };
     private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
 
-    public LoanApplicationsController(IMediator mediator, ICurrentUserService currentUser, IFileStorageService fileStorage)
+    public LoanApplicationsController(IMediator mediator, ICurrentUserService currentUser, IFileStorageService fileStorage, AppDbContext db)
     {
         _mediator = mediator;
         _currentUser = currentUser;
         _fileStorage = fileStorage;
+        _db = db;
     }
 
     private Guid UserId => _currentUser.UserId!.Value; // [Authorize] guarantees this is set
@@ -106,6 +110,33 @@ public class LoanApplicationsController : ControllerBase
             id, UserId, documentType, file.FileName, storedFileName, file.ContentType, file.Length), ct);
 
         return Ok(ApiResponse<ApplicationDocumentDto>.SuccessResponse(result, "Document uploaded."));
+    }
+
+    [HttpPost("{id:guid}/documents/from-library/{libraryDocumentId:guid}")]
+    public async Task<ActionResult<ApiResponse<ApplicationDocumentDto>>> AttachLibraryDocument(
+        Guid id, Guid libraryDocumentId, CancellationToken ct)
+    {
+        var application = await _db.LoanApplications.FirstOrDefaultAsync(a => a.Id == id && a.EmployeeId == UserId, ct);
+        if (application is null) return NotFound(ApiResponse<ApplicationDocumentDto>.FailureResponse("Application not found."));
+        if (application.Status is not (EduLoan.Domain.Entities.ApplicationStatus.Draft or EduLoan.Domain.Entities.ApplicationStatus.InfoRequested))
+            return Conflict(ApiResponse<ApplicationDocumentDto>.FailureResponse("Documents can only be attached while the application is a draft or awaiting information."));
+        var libraryDoc = await _db.EmployeeDocuments.AsNoTracking().FirstOrDefaultAsync(d => d.Id == libraryDocumentId && d.EmployeeId == UserId, ct);
+        if (libraryDoc is null) return NotFound(ApiResponse<ApplicationDocumentDto>.FailureResponse("Library document not found."));
+
+        // Copy into application-owned storage so removing an application attachment never deletes the library original.
+        string storedName;
+        await using (var source = _fileStorage.OpenRead(libraryDoc.StoredFileName))
+            storedName = await _fileStorage.SaveAsync(source, libraryDoc.FileName, ct);
+        try
+        {
+            var result = await _mediator.Send(new AddDocumentCommand(id, UserId, libraryDoc.DocumentType, libraryDoc.FileName, storedName, libraryDoc.ContentType, libraryDoc.FileSizeBytes), ct);
+            return Ok(ApiResponse<ApplicationDocumentDto>.SuccessResponse(result, "Library document attached to application."));
+        }
+        catch
+        {
+            await _fileStorage.DeleteAsync(storedName, ct);
+            throw;
+        }
     }
 
     [HttpGet("{id:guid}/documents/{documentId:guid}/download")]

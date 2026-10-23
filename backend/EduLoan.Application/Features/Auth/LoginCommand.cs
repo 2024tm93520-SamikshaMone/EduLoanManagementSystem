@@ -1,5 +1,6 @@
 using EduLoan.Application.Common;
 using EduLoan.Application.Interfaces;
+using EduLoan.Domain.Entities;
 using MediatR;
 
 namespace EduLoan.Application.Features.Auth;
@@ -38,10 +39,17 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponseDt
             throw new AuthenticationFailedException("This account has been deactivated.");
         }
 
-        var accessToken = _tokenGenerator.GenerateAccessToken(user);
+        // HR accounts are presented as Admin in the application. The persisted user
+        // record is not changed; this is a compatibility mapping for existing accounts.
+        var effectiveRole = user.Role == UserRole.HR ? UserRole.Admin : user.Role;
+        var tokenUser = effectiveRole == user.Role
+            ? user
+            : new User { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = effectiveRole };
+
+        var accessToken = _tokenGenerator.GenerateAccessToken(tokenUser);
         var refreshToken = _tokenGenerator.GenerateRefreshToken();
 
-        var userDto = new AuthUserDto(user.Id, user.FullName, user.Email, user.Role);
+        var userDto = new AuthUserDto(user.Id, user.FullName, user.Email, effectiveRole);
         return new LoginResponseDto(accessToken, refreshToken, userDto);
     }
 }

@@ -39,7 +39,7 @@ internal static class WorkflowTransition
             ApplicationId = application.Id,
             ActorUserId = actor.Id,
             ActorName = actor.FullName,
-            ActorRole = actor.Role.ToString(),
+            ActorRole = actor.Role == UserRole.HR ? UserRole.Admin.ToString() : actor.Role.ToString(),
             Action = action,
             Comments = string.IsNullOrWhiteSpace(comments) ? null : comments.Trim(),
         });

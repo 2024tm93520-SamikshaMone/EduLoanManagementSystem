@@ -1,3 +1,4 @@
+
 using EduLoan.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 
@@ -9,35 +10,79 @@ public class LocalFileStorageService : IFileStorageService
 
     public LocalFileStorageService(IConfiguration config)
     {
-        // Relative to wherever the API process runs from (EduLoan.API/ when using `dotnet run`).
-        // Fine for a dissertation-scale local deployment; a production system would use
-        // a mounted volume or blob storage instead, behind this same interface.
-        _rootPath = config["FileStorage:RootPath"] ?? "UploadedFiles";
+        var configuredPath =
+            config["FileStorage:RootPath"] ?? "UploadedFiles";
+
+        // Resolve relative paths against the current API working directory.
+        _rootPath = Path.GetFullPath(configuredPath);
+
         Directory.CreateDirectory(_rootPath);
+
+        Console.WriteLine($"EduLoan file storage: {_rootPath}");
     }
 
-    public async Task<string> SaveAsync(Stream content, string originalFileName, CancellationToken ct = default)
+    public async Task<string> SaveAsync(
+        Stream content,
+        string originalFileName,
+        CancellationToken ct = default)
     {
         var extension = Path.GetExtension(originalFileName);
         var storedFileName = $"{Guid.NewGuid():N}{extension}";
-        var fullPath = Path.Combine(_rootPath, storedFileName);
+        var fullPath = GetSafePath(storedFileName);
 
-        await using var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+        await using var fileStream = new FileStream(
+            fullPath,
+            FileMode.CreateNew,
+            FileAccess.Write,
+            FileShare.None);
+
         await content.CopyToAsync(fileStream, ct);
 
         return storedFileName;
     }
 
-    public Task DeleteAsync(string storedFileName, CancellationToken ct = default)
+    public Task DeleteAsync(
+        string storedFileName,
+        CancellationToken ct = default)
     {
-        var fullPath = Path.Combine(_rootPath, storedFileName);
-        if (File.Exists(fullPath)) File.Delete(fullPath);
+        var fullPath = GetSafePath(storedFileName);
+
+        if (File.Exists(fullPath))
+        {
+            File.Delete(fullPath);
+        }
+
         return Task.CompletedTask;
     }
 
     public Stream OpenRead(string storedFileName)
     {
-        var fullPath = Path.Combine(_rootPath, storedFileName);
-        return new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+        var fullPath = GetSafePath(storedFileName);
+
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException(
+                "The stored document could not be found.",
+                fullPath);
+        }
+
+        return new FileStream(
+            fullPath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read);
+    }
+
+    private string GetSafePath(string storedFileName)
+    {
+        if (string.IsNullOrWhiteSpace(storedFileName) ||
+            storedFileName != Path.GetFileName(storedFileName))
+        {
+            throw new ArgumentException(
+                "Invalid stored filename.",
+                nameof(storedFileName));
+        }
+
+        return Path.Combine(_rootPath, storedFileName);
     }
 }

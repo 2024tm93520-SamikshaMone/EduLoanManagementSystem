@@ -10,6 +10,9 @@ public enum WorkflowAction
     SentToFinance,
     ConfirmedProcessed,
     Resubmitted,
+    FinanceReceived,
+    SentToBank,
+    ProcessingFailed,
 }
 
 // One row per action taken on an application as it moves through review — this IS the

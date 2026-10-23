@@ -37,8 +37,8 @@ public class GetApplicationByIdQueryHandler : IRequestHandler<GetApplicationById
             .FirstOrDefaultAsync(a => a.Id == request.ApplicationId, ct)
             ?? throw new NotFoundException(nameof(LoanApplication), request.ApplicationId);
 
-        // Ownership check here (rather than only Admin/HR bypass) because only the
-        // Employee portal exists so far — Admin/HR "view any application" is part
+        // Ownership check here (rather than only Admin bypass) because only the
+        // Employee portal exists so far — Admin "view any application" is part
         // of the Approval Workflow module, not this one.
         if (application.EmployeeId != request.RequestingUserId)
             throw new ForbiddenException("You can only view your own application.");
