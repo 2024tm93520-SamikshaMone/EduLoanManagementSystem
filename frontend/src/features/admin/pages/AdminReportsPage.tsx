@@ -31,6 +31,11 @@ const formatCurrency = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount);
 
+const escapeCsv = (value: string | number) => {
+  const text = String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+};
+
 const formatNumber = (value: number) =>
   new Intl.NumberFormat("en-IN").format(value);
 
@@ -212,12 +217,21 @@ export default function AdminReportsPage() {
         <div className="admin-reports-header">
           <div>
             <h1>Reports</h1>
-
-            <p>
-              View education loan application and
-              employee education insights.
-            </p>
+            <p>View education loan application and employee education insights.</p>
           </div>
+          <button type="button" className="admin-reports-apply-btn" disabled={!reports} onClick={() => {
+            if (!reports) return;
+            const rows: (string | number)[][] = [
+              ["Report", "Category", "Name", "Application Count", "Requested Amount (INR)"],
+              ...reports.statusOverview.map(x => ["Status Overview", x.status, x.status, x.count, ""]),
+              ...reports.departmentOverview.map(x => ["Department Overview", "Department", x.departmentName, x.applicationCount, x.requestedAmount]),
+              ...reports.courseOverview.map(x => ["Course Overview", "Course", x.courseName, x.applicationCount, x.requestedAmount]),
+              ...reports.collegeOverview.map(x => ["College Overview", "College", x.collegeName, x.applicationCount, x.requestedAmount]),
+            ];
+            const csv = rows.map(row => row.map(escapeCsv).join(",")).join("\r\n");
+            const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" }));
+            const link = document.createElement("a"); link.href = url; link.download = `eduloan-report-${selectedYear || "all-years"}.csv`; link.click(); URL.revokeObjectURL(url);
+          }}>Export CSV</button>
         </div>
 
         {/* ===================================================

@@ -1,14 +1,15 @@
 import {
   BrowserRouter,
+  Link,
   Navigate,
   Route,
   Routes,
   useNavigate,
 } from "react-router-dom";
 
-import LoginPage from "./features/auth/LoginPage";
-import ProfilePage from "./features/employee/ProfilePage";
-import DocumentsPage from "./features/employee/DocumentsPage";
+import LoginPage from "./features/auth/pages/LoginPage";
+import ProfilePage from "./features/employee/pages/ProfilePage";
+import DocumentsPage from "./features/employee/pages/DocumentsPage";
 import HelpSupportPage from "./HelpSupportPage";
 
 import AdminMasterDataPage from "./features/admin/pages/AdminMasterDataPage";
@@ -22,12 +23,15 @@ import AdminReportsPage from "./features/admin/pages/AdminReportsPage";
 import MyApplicationsPage from "./features/loans/pages/MyApplicationsPage";
 import NewApplicationPage from "./features/loans/pages/NewApplicationPage";
 
-import EmployeeNav from "./components/EmployeeNav";
-import AdminNav from "./components/AdminNav";
+import EmployeeNav from "./components/pages/EmployeeNav";
+import AdminNav from "./components/pages/AdminNav";
 
-import PasswordPage from "./features/auth/PasswordPage";
+import PasswordPage from "./features/auth/pages/PasswordPage";
 import FinanceDashboardPage from "./features/finance/FinanceDashboardPage";
+import FinanceNav from "./components/pages/FinanceNav";
 import DocumentRequirementsPage from "./features/admin/pages/DocumentRequirementsPage";
+import NotificationsPage from "./features/shared/NotificationsPage";
+
 
 /* =========================================================
    LOGIN
@@ -38,7 +42,7 @@ function LoginRoute() {
 
   return (
     <LoginPage
-      onLoginSuccess={(route) => navigate(route)}
+      onLoginSuccess={(route: string) => navigate(route)}
     />
   );
 }
@@ -157,6 +161,24 @@ function AdminHelpSupportRoute() {
   );
 }
 
+function FinanceNotificationsRoute() {
+  return (
+    <div className="finance-notifications-shell">
+      <FinanceNav />
+      <NotificationsPage />
+    </div>
+  );
+}
+
+function FinanceHelpSupportRoute() {
+  return (
+    <div className="finance-help-shell">
+      <FinanceNav />
+      <HelpSupportPage />
+    </div>
+  );
+}
+
 /* =========================================================
    APP
    ========================================================= */
@@ -211,12 +233,18 @@ export default function App() {
 
         <Route path="/employee/documents" element={<EmployeeDocumentsRoute />} />
 
+        <Route path="/employee/notifications" element={<><EmployeeNav /><NotificationsPage /></>} />
+
         <Route
           path="/employee/help"
           element={<EmployeeHelpSupportRoute />}
         />
 
-        <Route path="/finance/dashboard" element={<FinanceDashboardPage />} />
+        <Route path="/finance/dashboard" element={<><FinanceNav /><FinanceDashboardPage /></>} />
+        <Route path="/finance/notifications" element={<FinanceNotificationsRoute />} />
+        <Route path="/finance/help" element={<FinanceHelpSupportRoute />} />
+        <Route path="/finance/profile" element={<><FinanceNav /><ProfilePage /></>} />
+        <Route path="/finance/change-password" element={<><FinanceNav /><PasswordPage /></>} />
 
         {/* =====================================================
            ADMIN
@@ -266,6 +294,8 @@ export default function App() {
           path="/admin/reports"
           element={<AdminReportsRoute />}
         />
+
+        <Route path="/admin/notifications" element={<><AdminNav /><NotificationsPage /></>} />
 
         <Route
           path="/admin/help"
