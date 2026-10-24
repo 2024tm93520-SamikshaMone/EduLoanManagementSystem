@@ -15,8 +15,16 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Secrets must be supplied through environment variables/user-secrets, never committed.
+// For local development use Jwt__Secret (at least 32 characters) and configure SMTP
+// only when email delivery is required.
+var configuredJwtSecret = builder.Configuration["Jwt:Secret"];
+if (string.IsNullOrWhiteSpace(configuredJwtSecret) || Encoding.UTF8.GetByteCount(configuredJwtSecret) < 32)
+    throw new InvalidOperationException("Configure Jwt:Secret with a random secret of at least 32 bytes using user-secrets or the Jwt__Secret environment variable.");
+
 // --- Services ---
-builder.Services.AddControllers()
+builder.Services.AddScoped<AuditActionFilter>();
+builder.Services.AddControllers(options => options.Filters.AddService<AuditActionFilter>())
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
@@ -56,7 +64,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSection["Issuer"],
             ValidAudience = jwtSection["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Secret"]!)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuredJwtSecret)),
         };
     });
 builder.Services.AddAuthorization();

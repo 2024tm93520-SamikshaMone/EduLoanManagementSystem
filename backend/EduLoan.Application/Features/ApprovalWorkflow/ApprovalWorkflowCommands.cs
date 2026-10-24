@@ -1,5 +1,6 @@
 using EduLoan.Application.Common;
 using EduLoan.Application.Interfaces;
+using EduLoan.Application.Features.LoanApplications;
 using EduLoan.Domain.Entities;
 using FluentValidation;
 using MediatR;
@@ -29,6 +30,53 @@ internal static class WorkflowTransition
         if (!allowedFrom.Contains(application.Status))
             throw new InUseException(
                 $"This action isn't available while the application is '{application.Status}'.");
+
+        // Approval is blocked until every required document attached to the application
+        // has an explicit Verified decision. Rejected/Pending/UnderReview documents must
+        // never silently pass the review gate.
+        if (newStatus == ApplicationStatus.Approved)
+        {
+            var requestedAmount = await db.LoanApplications
+                .Where(a => a.Id == application.Id)
+                .Select(a => a.RequestedAmount)
+                .FirstAsync(ct);
+            var educationLevel = await db.Courses
+                .Where(c => c.Id == application.CourseId)
+                .Select(c => c.Level)
+                .FirstOrDefaultAsync(ct);
+            var employee = await db.Users.FirstOrDefaultAsync(u => u.Id == application.EmployeeId, ct)
+                ?? throw new NotFoundException(nameof(User), application.EmployeeId);
+            var configuredRequirements = await db.DocumentRequirements.Where(r => r.IsActive && r.IsRequired).ToListAsync(ct);
+            var configuredRequiredTypes = new List<string>();
+            var employmentTypeMissing = false;
+            foreach (var requirement in configuredRequirements)
+            {
+                var applicability = DocumentRequirementApplicability.Evaluate(requirement, requestedAmount, educationLevel, employee.EmploymentType);
+                if (applicability == DocumentRequirementApplicabilityResult.Applicable) configuredRequiredTypes.Add(requirement.DocumentType);
+                else if (applicability == DocumentRequirementApplicabilityResult.EmploymentTypeMissing) employmentTypeMissing = true;
+            }
+            if (employmentTypeMissing)
+                throw new InUseException("HR must confirm the employee's employment type before approval because document requirements depend on it.");
+            var attachedRequiredDocuments = await db.ApplicationDocuments
+                .Where(d => d.ApplicationId == application.Id && d.IsRequired)
+                .ToListAsync(ct);
+            var missingRequired = configuredRequiredTypes
+                .Where(requiredType => !attachedRequiredDocuments.Any(d =>
+                    string.Equals(d.DocumentType?.Trim(), requiredType.Trim(), StringComparison.OrdinalIgnoreCase)))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            var unverified = attachedRequiredDocuments
+                .Where(d => d.VerificationStatus != DocumentVerificationStatus.Verified)
+                .Select(d => d.DocumentType)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            var blockedDocuments = missingRequired.Concat(unverified)
+                .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            if (blockedDocuments.Count > 0)
+                throw new InUseException(
+                    "Approval is blocked until all applicable required documents are attached and verified: " +
+                    string.Join(", ", blockedDocuments) + ".");
+        }
 
         application.Status = newStatus;
         application.UpdatedAt = DateTime.UtcNow;

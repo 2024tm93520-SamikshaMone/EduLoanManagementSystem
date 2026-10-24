@@ -32,6 +32,7 @@ public class GetEmployeeProfileQueryHandler : IRequestHandler<GetEmployeeProfile
             user.Role.ToString(),
             user.Department?.Name,
             user.Designation,
+            user.EmploymentType,
             user.DateOfJoining,
             tenureMonths,
             user.MonthlySalary,

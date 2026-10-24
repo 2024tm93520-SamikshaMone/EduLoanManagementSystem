@@ -1,4 +1,5 @@
 using EduLoan.Application.Common;
+using EduLoan.API.Services;
 using EduLoan.Application.Interfaces;
 using EduLoan.Domain.Entities;
 using EduLoan.Infrastructure.Persistence;
@@ -44,6 +45,7 @@ public sealed class EmployeeDocumentsController : ControllerBase
         if (file.Length > MaxFileSizeBytes) return BadRequest(ApiResponse<object>.FailureResponse("Maximum file size is 5 MB."));
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (!AllowedExtensions.Contains(extension)) return BadRequest(ApiResponse<object>.FailureResponse("Only PDF, JPG, JPEG, and PNG files are allowed."));
+        if (!UploadedFileValidator.HasAllowedSignature(file)) return BadRequest(ApiResponse<object>.FailureResponse("The file content does not match a supported PDF, JPG, or PNG document."));
 
         string storedName;
         await using (var stream = file.OpenReadStream())

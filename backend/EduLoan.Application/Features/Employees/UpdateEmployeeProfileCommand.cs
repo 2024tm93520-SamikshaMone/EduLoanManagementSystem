@@ -56,6 +56,7 @@ public class UpdateEmployeeProfileCommandHandler : IRequestHandler<UpdateEmploye
             user.Role.ToString(),
             user.Department?.Name,
             user.Designation,
+            user.EmploymentType,
             user.DateOfJoining,
             tenureMonths,
             user.MonthlySalary,

@@ -22,8 +22,13 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<InformationRequest> InformationRequests => Set<InformationRequest>();
     public DbSet<InformationRequestResponse> InformationRequestResponses => Set<InformationRequestResponse>();
     public DbSet<FinanceHandoff> FinanceHandoffs => Set<FinanceHandoff>();
+    public DbSet<LoanActivationRecord> LoanActivationRecords => Set<LoanActivationRecord>();
+    public DbSet<SimulatedRepaymentInstallment> SimulatedRepaymentInstallments => Set<SimulatedRepaymentInstallment>();
     public DbSet<DocumentRequirement> DocumentRequirements => Set<DocumentRequirement>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<ConsistencyFlag> ConsistencyFlags => Set<ConsistencyFlag>();
+    public DbSet<ConsistencyFlagHistory> ConsistencyFlagHistories => Set<ConsistencyFlagHistory>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     IQueryable<Department> IAppDbContext.Departments => Departments;
     IQueryable<College> IAppDbContext.Colleges => Colleges;
@@ -38,7 +43,10 @@ public class AppDbContext : DbContext, IAppDbContext
     IQueryable<InformationRequest> IAppDbContext.InformationRequests => InformationRequests;
     IQueryable<InformationRequestResponse> IAppDbContext.InformationRequestResponses => InformationRequestResponses;
     IQueryable<FinanceHandoff> IAppDbContext.FinanceHandoffs => FinanceHandoffs;
+    IQueryable<DocumentRequirement> IAppDbContext.DocumentRequirements => DocumentRequirements;
     IQueryable<Notification> IAppDbContext.Notifications => Notifications;
+    IQueryable<ConsistencyFlag> IAppDbContext.ConsistencyFlags => ConsistencyFlags;
+    IQueryable<ConsistencyFlagHistory> IAppDbContext.ConsistencyFlagHistories => ConsistencyFlagHistories;
 
     public void AddDepartment(Department department) => Departments.Add(department);
     public void AddCollege(College college) => Colleges.Add(college);
@@ -53,6 +61,8 @@ public class AppDbContext : DbContext, IAppDbContext
     public void AddInformationRequestResponse(InformationRequestResponse response) => InformationRequestResponses.Add(response);
     public void AddFinanceHandoff(FinanceHandoff handoff) => FinanceHandoffs.Add(handoff);
     public void AddNotification(Notification notification) => Notifications.Add(notification);
+    public void AddConsistencyFlag(ConsistencyFlag flag) => ConsistencyFlags.Add(flag);
+    public void AddConsistencyFlagHistory(ConsistencyFlagHistory history) => ConsistencyFlagHistories.Add(history);
 
     public void RemoveDepartment(Department department) => Departments.Remove(department);
     public void RemoveCollege(College college) => Colleges.Remove(college);
@@ -62,6 +72,23 @@ public class AppDbContext : DbContext, IAppDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.ToTable("AuditLog", "dbo");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.ActorRole).HasMaxLength(20).IsRequired();
+            entity.Property(x => x.Action).HasMaxLength(120).IsRequired();
+            entity.Property(x => x.EntityType).HasMaxLength(120).IsRequired();
+            entity.Property(x => x.EntityId).HasMaxLength(100);
+            entity.Property(x => x.Outcome).HasMaxLength(30).IsRequired();
+            entity.Property(x => x.CorrelationId).HasMaxLength(100);
+            entity.Property(x => x.Metadata).HasMaxLength(1000);
+            entity.HasIndex(x => x.CreatedAtUtc);
+            entity.HasIndex(x => new { x.EntityType, x.EntityId, x.CreatedAtUtc });
+            entity.HasIndex(x => new { x.ActorUserId, x.CreatedAtUtc });
+            entity.HasOne<User>().WithMany().HasForeignKey(x => x.ActorUserId).OnDelete(DeleteBehavior.SetNull);
+        });
+
         modelBuilder.Entity<Notification>(entity =>
         {
             entity.ToTable("Notification");
@@ -86,6 +113,7 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();
             entity.Property(u => u.Role).HasConversion<string>().HasMaxLength(20);
             entity.Property(u => u.MonthlySalary).HasColumnType("decimal(12,2)");
+            entity.Property(u => u.EmploymentType).HasMaxLength(50);
             entity.HasOne(u => u.Department).WithMany().HasForeignKey(u => u.DepartmentId).OnDelete(DeleteBehavior.SetNull);
         });
 
@@ -213,10 +241,36 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(x => x.ConfirmationReference).HasMaxLength(100);
             entity.Property(x => x.ProcessedAmount).HasColumnType("decimal(12,2)");
             entity.Property(x => x.Status).HasMaxLength(40).IsRequired();
+            entity.Property(x => x.RowVersion).IsRowVersion();
             entity.Property(x => x.FinanceComments).HasMaxLength(1000);
             entity.Property(x => x.FailureReason).HasMaxLength(500);
             entity.HasOne(x => x.Application).WithMany().HasForeignKey(x => x.ApplicationId).OnDelete(DeleteBehavior.Cascade);
         });
+        modelBuilder.Entity<LoanActivationRecord>(entity =>
+        {
+            entity.ToTable("LoanActivationRecord"); entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.ApplicationId).IsUnique();
+            entity.Property(x => x.PrincipalAmount).HasColumnType("decimal(12,2)");
+            entity.Property(x => x.AnnualInterestRatePercent).HasColumnType("decimal(6,3)");
+            entity.Property(x => x.ActivationReference).HasMaxLength(120).IsRequired();
+            entity.Property(x => x.Notes).HasMaxLength(1000).IsRequired();
+            entity.Property(x => x.RowVersion).IsRowVersion();
+            entity.HasOne(x => x.Application).WithMany().HasForeignKey(x => x.ApplicationId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<User>().WithMany().HasForeignKey(x => x.RecordedByUserId).OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<SimulatedRepaymentInstallment>(entity =>
+        {
+            entity.ToTable("SimulatedRepaymentInstallment"); entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.ActivationRecordId, x.InstallmentNumber }).IsUnique();
+            entity.Property(x => x.ScheduledAmount).HasColumnType("decimal(12,2)");
+            entity.Property(x => x.SimulatedAmountPaid).HasColumnType("decimal(12,2)");
+            entity.Property(x => x.Status).HasMaxLength(20).IsRequired();
+            entity.Property(x => x.SimulationNote).HasMaxLength(500);
+            entity.Property(x => x.RowVersion).IsRowVersion();
+            entity.HasOne(x => x.ActivationRecord).WithMany(x => x.Installments).HasForeignKey(x => x.ActivationRecordId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<User>().WithMany().HasForeignKey(x => x.RecordedByUserId).OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<ApprovalWorkflowStep>(entity =>
         {
             entity.ToTable("ApprovalWorkflowStep"); entity.HasKey(w => w.Id);
@@ -225,6 +279,33 @@ public class AppDbContext : DbContext, IAppDbContext
             entity.Property(w => w.Action).HasConversion<string>().HasMaxLength(30);
             entity.Property(w => w.Comments).HasMaxLength(500);
             entity.HasOne(w => w.Application).WithMany().HasForeignKey(w => w.ApplicationId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<ConsistencyFlag>(entity =>
+        {
+            entity.ToTable("ConsistencyFlag");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.RuleCode).HasMaxLength(80).IsRequired();
+            entity.Property(x => x.Title).HasMaxLength(200).IsRequired();
+            entity.Property(x => x.Category).HasMaxLength(50).IsRequired();
+            entity.Property(x => x.Severity).HasMaxLength(20).IsRequired();
+            entity.Property(x => x.Description).HasMaxLength(1000).IsRequired();
+            entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(30).IsRequired();
+            entity.Property(x => x.ResolutionNotes).HasMaxLength(1000);
+            entity.Property(x => x.RowVersion).IsRowVersion();
+            entity.HasOne(x => x.Application).WithMany().HasForeignKey(x => x.ApplicationId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.ReviewedBy).WithMany().HasForeignKey(x => x.ReviewedByUserId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(x => new { x.ApplicationId, x.RuleCode }).HasDatabaseName("IX_ConsistencyFlag_ApplicationId_RuleCode_Active").HasFilter("[Status] IN ('Open','UnderInvestigation')").IsUnique();
+            entity.HasIndex(x => new { x.Status, x.DetectedAtUtc });
+        });
+        modelBuilder.Entity<ConsistencyFlagHistory>(entity =>
+        {
+            entity.ToTable("ConsistencyFlagHistory");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Action).HasMaxLength(40).IsRequired();
+            entity.Property(x => x.Notes).HasMaxLength(1000);
+            entity.HasOne(x => x.ConsistencyFlag).WithMany(x => x.History).HasForeignKey(x => x.ConsistencyFlagId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Actor).WithMany().HasForeignKey(x => x.ActorUserId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(x => new { x.ConsistencyFlagId, x.CreatedAtUtc });
         });
     }
 }

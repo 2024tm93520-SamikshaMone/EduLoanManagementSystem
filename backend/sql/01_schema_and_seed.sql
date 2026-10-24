@@ -419,4 +419,3 @@ SELECT *
 FROM dbo.ApplicationDocument
 WHERE Id = 'bcb3a94b-3810-483d-aa9f-144ac7379866';
 GO
-

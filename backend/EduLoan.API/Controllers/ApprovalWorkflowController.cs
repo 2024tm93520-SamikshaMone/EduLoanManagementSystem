@@ -4,6 +4,7 @@ using EduLoan.Application.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace EduLoan.API.Controllers;
 
@@ -16,11 +17,13 @@ public class ApprovalWorkflowController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IAppDbContext _db;
 
-    public ApprovalWorkflowController(IMediator mediator, ICurrentUserService currentUser)
+    public ApprovalWorkflowController(IMediator mediator, ICurrentUserService currentUser, IAppDbContext db)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _db = db;
     }
 
     private Guid ActorId => _currentUser.UserId!.Value;
@@ -31,6 +34,14 @@ public class ApprovalWorkflowController : ControllerBase
     [HttpGet("workflow-history")]
     public async Task<ActionResult<ApiResponse<List<WorkflowStepDto>>>> GetHistory(Guid applicationId, CancellationToken ct)
     {
+        var application = await _db.LoanApplications.FirstOrDefaultAsync(a => a.Id == applicationId, ct);
+        if (application is null)
+            return NotFound(ApiResponse<List<WorkflowStepDto>>.FailureResponse("Application not found."));
+        if (User.IsInRole("Employee") && application.EmployeeId != ActorId)
+            return Forbid();
+        if (!User.IsInRole("Employee") && !User.IsInRole("Admin") && !User.IsInRole("HR") && !User.IsInRole("Finance"))
+            return Forbid();
+
         var result = await _mediator.Send(new GetWorkflowHistoryQuery(applicationId), ct);
         return Ok(ApiResponse<List<WorkflowStepDto>>.SuccessResponse(result));
     }

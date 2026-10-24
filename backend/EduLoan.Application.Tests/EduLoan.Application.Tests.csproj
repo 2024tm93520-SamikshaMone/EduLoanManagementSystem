@@ -15,5 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="..\EduLoan.Application\EduLoan.Application.csproj" />
     <ProjectReference Include="..\EduLoan.Infrastructure\EduLoan.Infrastructure.csproj" />
+    <ProjectReference Include="..\EduLoan.API\EduLoan.API.csproj" />
   </ItemGroup>
 </Project>

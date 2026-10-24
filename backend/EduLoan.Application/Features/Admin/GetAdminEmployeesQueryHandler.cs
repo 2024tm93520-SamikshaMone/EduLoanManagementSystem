@@ -40,6 +40,7 @@ public class GetAdminEmployeesQueryHandler
                 x.DateOfJoining,
                 x.MonthlySalary,
                 x.PhoneNumber,
+                x.EmploymentType,
                 x.IsActive
             ))
             .ToListAsync(ct);

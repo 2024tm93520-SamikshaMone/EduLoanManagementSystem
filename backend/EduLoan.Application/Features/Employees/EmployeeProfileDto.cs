@@ -8,6 +8,7 @@ public record EmployeeProfileDto(
     string Role,
     string? DepartmentName,
     string? Designation,
+    string? EmploymentType,
     DateOnly DateOfJoining,
     int TenureMonths,
     decimal MonthlySalary,

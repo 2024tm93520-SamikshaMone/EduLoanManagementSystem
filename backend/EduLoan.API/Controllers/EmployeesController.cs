@@ -1,6 +1,8 @@
 using EduLoan.Application.Common;
 using EduLoan.Application.Features.Employees;
 using EduLoan.Application.Interfaces;
+using EduLoan.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +16,39 @@ public class EmployeesController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly IAppDbContext _db;
 
-    public EmployeesController(IMediator mediator, ICurrentUserService currentUser)
+    public EmployeesController(IMediator mediator, ICurrentUserService currentUser, IAppDbContext db)
     {
         _mediator = mediator;
         _currentUser = currentUser;
+        _db = db;
     }
 
     public record UpdateProfileRequest(string PhoneNumber);
+    public record UpdateEmploymentTypeRequest(string? EmploymentType);
+
+    // Employment type is HR-controlled master data, not employee-editable profile data.
+    // Values are copied from the authoritative HR record; this endpoint intentionally
+    // does not define or default an employment-type vocabulary.
+    [HttpPut("{employeeId:guid}/employment-type")]
+    [Authorize(Roles = "Admin,HR")]
+    public async Task<ActionResult<ApiResponse<object>>> UpdateEmploymentType(
+        Guid employeeId, [FromBody] UpdateEmploymentTypeRequest request, CancellationToken ct)
+    {
+        var employee = await _db.Users.FirstOrDefaultAsync(u => u.Id == employeeId, ct);
+        if (employee is null)
+            return NotFound(ApiResponse<object>.FailureResponse("Employee profile was not found."));
+
+        var value = string.IsNullOrWhiteSpace(request.EmploymentType) ? null : request.EmploymentType.Trim();
+        if (value?.Length > 50)
+            return BadRequest(ApiResponse<object>.FailureResponse("Employment type must not exceed 50 characters."));
+
+        employee.EmploymentType = value;
+        employee.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+        return Ok(ApiResponse<object>.SuccessResponse(new { employee.Id, employee.EmploymentType }, "Employment type updated from the HR record."));
+    }
 
     [HttpGet("me")]
     public async Task<ActionResult<ApiResponse<EmployeeProfileDto>>> GetMyProfile(CancellationToken ct)

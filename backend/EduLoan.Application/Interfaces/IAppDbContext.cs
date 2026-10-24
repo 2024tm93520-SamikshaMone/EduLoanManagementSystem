@@ -17,7 +17,10 @@ public interface IAppDbContext
     IQueryable<InformationRequest> InformationRequests { get; }
     IQueryable<InformationRequestResponse> InformationRequestResponses { get; }
     IQueryable<FinanceHandoff> FinanceHandoffs { get; }
+    IQueryable<DocumentRequirement> DocumentRequirements { get; }
     IQueryable<Notification> Notifications { get; }
+    IQueryable<ConsistencyFlag> ConsistencyFlags { get; }
+    IQueryable<ConsistencyFlagHistory> ConsistencyFlagHistories { get; }
 
     void AddDepartment(Department department);
     void AddCollege(College college);
@@ -32,6 +35,8 @@ public interface IAppDbContext
     void AddInformationRequestResponse(InformationRequestResponse response);
     void AddFinanceHandoff(FinanceHandoff handoff);
     void AddNotification(Notification notification);
+    void AddConsistencyFlag(ConsistencyFlag flag);
+    void AddConsistencyFlagHistory(ConsistencyFlagHistory history);
 
     void RemoveDepartment(Department department);
     void RemoveCollege(College college);

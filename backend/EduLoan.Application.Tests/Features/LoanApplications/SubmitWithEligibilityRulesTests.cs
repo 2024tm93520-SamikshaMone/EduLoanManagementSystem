@@ -1,4 +1,5 @@
 using EduLoan.Application.Common;
+using EduLoan.Application.Features.AdminApplications;
 using EduLoan.Application.Features.EligibilityRules;
 using EduLoan.Application.Features.LoanApplications;
 using EduLoan.Application.Tests.Features.MasterData;
@@ -54,11 +55,33 @@ public class SubmitWithEligibilityRulesTests
         db.LoanApplications.Add(application);
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine(), new ApplicationConsistencyChecker());
         var result = await handler.Handle(new SubmitLoanApplicationCommand(application.Id, employee.Id), default);
 
         Assert.Equal("Submitted", result.Status);
         Assert.Empty(result.EligibilityResults);
+    }
+
+    [Fact]
+    public async Task Submit_BlocksWhenConfiguredRequiredDocumentIsMissing()
+    {
+        using var db = TestDbContextFactory.Create();
+        var (college, course, employee) = SeedBaseData(db, tenureMonthsAgo: 24, monthlySalary: 50000);
+        db.DocumentRequirements.Add(new DocumentRequirement
+        {
+            DocumentType = "Fee Receipt", DisplayName = "Fee Receipt", Category = "Financial",
+            IsRequired = true, IsActive = true,
+        });
+        var application = BuildDraftWithDocument(employee.Id, college.Id, course.Id, 400000, 500000);
+        db.LoanApplications.Add(application); // only Admission Letter is attached
+        await db.SaveChangesAsync();
+
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine(), new ApplicationConsistencyChecker());
+        var ex = await Assert.ThrowsAsync<InUseException>(() =>
+            handler.Handle(new SubmitLoanApplicationCommand(application.Id, employee.Id), default));
+
+        Assert.Contains("Fee Receipt", ex.Message);
+        Assert.Equal(ApplicationStatus.Draft, application.Status);
     }
 
     [Fact]
@@ -75,7 +98,7 @@ public class SubmitWithEligibilityRulesTests
         db.LoanApplications.Add(application);
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine(), new ApplicationConsistencyChecker());
         var result = await handler.Handle(new SubmitLoanApplicationCommand(application.Id, employee.Id), default);
 
         Assert.Equal("Submitted", result.Status);
@@ -99,7 +122,7 @@ public class SubmitWithEligibilityRulesTests
         db.LoanApplications.Add(application);
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine(), new ApplicationConsistencyChecker());
 
         var ex = await Assert.ThrowsAsync<EligibilityFailedException>(
             () => handler.Handle(new SubmitLoanApplicationCommand(application.Id, employee.Id), default));
@@ -125,7 +148,7 @@ public class SubmitWithEligibilityRulesTests
         db.LoanApplications.Add(application);
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine(), new ApplicationConsistencyChecker());
         await Assert.ThrowsAsync<EligibilityFailedException>(
             () => handler.Handle(new SubmitLoanApplicationCommand(application.Id, employee.Id), default));
 
@@ -150,7 +173,7 @@ public class SubmitWithEligibilityRulesTests
         db.LoanApplications.Add(application);
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine(), new ApplicationConsistencyChecker());
         var result = await handler.Handle(new SubmitLoanApplicationCommand(application.Id, employee.Id), default);
 
         Assert.Equal("Submitted", result.Status);
@@ -174,7 +197,7 @@ public class SubmitWithEligibilityRulesTests
         db.LoanApplications.Add(application);
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine(), new ApplicationConsistencyChecker());
         var result = await handler.Handle(new SubmitLoanApplicationCommand(application.Id, employee.Id), default);
 
         Assert.Equal("Submitted", result.Status);
@@ -204,7 +227,7 @@ public class SubmitWithEligibilityRulesTests
         db.LoanApplications.Add(application);
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine(), new ApplicationConsistencyChecker());
         var ex = await Assert.ThrowsAsync<EligibilityFailedException>(
             () => handler.Handle(new SubmitLoanApplicationCommand(application.Id, employee.Id), default));
 

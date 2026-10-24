@@ -27,6 +27,7 @@ public class GetEmployeeProfileQueryHandlerTests
         Role = UserRole.Employee,
         Department = new Department { Id = 1, Name = "Engineering" },
         Designation = "Software Engineer",
+        EmploymentType = "Permanent",
         DateOfJoining = new DateOnly(2022, 1, 10),
         MonthlySalary = 65000,
         PhoneNumber = "9876543210",
@@ -46,6 +47,7 @@ public class GetEmployeeProfileQueryHandlerTests
         Assert.Equal(user.FullName, result.FullName);
         Assert.Equal("Engineering", result.DepartmentName);
         Assert.Equal("Employee", result.Role);
+        Assert.Equal("Permanent", result.EmploymentType);
     }
 
     [Fact]

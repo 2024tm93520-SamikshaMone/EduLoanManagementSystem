@@ -81,7 +81,7 @@ public class CreateLoanApplicationCommandHandler : IRequestHandler<CreateLoanApp
             $"Application Number: {application.ApplicationNumber}, " +
             $"Rows Affected: {rowsAffected}"
         );
-        
+
         await _db.SaveChangesAsync(ct);
 
         application.College = college;

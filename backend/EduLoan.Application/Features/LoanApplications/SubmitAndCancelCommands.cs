@@ -1,5 +1,6 @@
 using EduLoan.Application.Common;
 using EduLoan.Application.Features.EligibilityRules;
+using EduLoan.Application.Features.AdminApplications;
 using EduLoan.Application.Interfaces;
 using EduLoan.Domain.Entities;
 using MediatR;
@@ -14,11 +15,13 @@ public class SubmitLoanApplicationCommandHandler : IRequestHandler<SubmitLoanApp
 {
     private readonly IAppDbContext _db;
     private readonly IEligibilityRuleEngine _ruleEngine;
+    private readonly ApplicationConsistencyChecker _consistencyChecker;
 
-    public SubmitLoanApplicationCommandHandler(IAppDbContext db, IEligibilityRuleEngine ruleEngine)
+    public SubmitLoanApplicationCommandHandler(IAppDbContext db, IEligibilityRuleEngine ruleEngine, ApplicationConsistencyChecker consistencyChecker)
     {
         _db = db;
         _ruleEngine = ruleEngine;
+        _consistencyChecker = consistencyChecker;
     }
 
     public async Task<LoanApplicationDetailDto> Handle(SubmitLoanApplicationCommand request, CancellationToken ct)
@@ -40,6 +43,29 @@ public class SubmitLoanApplicationCommandHandler : IRequestHandler<SubmitLoanApp
 
         var employee = await _db.Users.FirstOrDefaultAsync(u => u.Id == application.EmployeeId, ct)
             ?? throw new NotFoundException(nameof(User), application.EmployeeId);
+
+        // Enforce the active checklist using the authoritative employee master record.
+        // If a configured employment-specific rule applies but the employee's type is
+        // unknown, fail closed rather than silently treating that requirement as optional.
+        var requirements = await _db.DocumentRequirements.Where(r => r.IsActive && r.IsRequired).ToListAsync(ct);
+        var applicableTypes = new List<string>();
+        var employmentTypeMissing = new List<string>();
+        foreach (var requirement in requirements)
+        {
+            var applicability = DocumentRequirementApplicability.Evaluate(requirement, application.RequestedAmount, application.Course?.Level, employee.EmploymentType);
+            if (applicability == DocumentRequirementApplicabilityResult.Applicable) applicableTypes.Add(requirement.DocumentType);
+            else if (applicability == DocumentRequirementApplicabilityResult.EmploymentTypeMissing) employmentTypeMissing.Add(requirement.EmploymentType!);
+        }
+        if (employmentTypeMissing.Count > 0)
+            throw new InUseException("HR must confirm the employee's employment type before submission because document requirements depend on it.");
+        var missingRequiredDocuments = applicableTypes
+            .Where(requiredType => !application.Documents.Any(document =>
+                string.Equals(document.DocumentType?.Trim(), requiredType.Trim(), StringComparison.OrdinalIgnoreCase)))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        if (missingRequiredDocuments.Count > 0)
+            throw new InUseException("Upload all applicable required documents before submitting: " +
+                string.Join(", ", missingRequiredDocuments) + ".");
 
         // Tenure calculation mirrors GetEmployeeProfileQueryHandler.CalculateTenureMonths
         // (Module 2) — duplicated here rather than shared to keep the rule engine's
@@ -107,6 +133,32 @@ public class SubmitLoanApplicationCommandHandler : IRequestHandler<SubmitLoanApp
             });
         }
 
+        // Persist deterministic Module 9 review flags as part of the submission save.
+        // A flag is a review signal only; it never changes the application outcome.
+        var consistencyFlags = _consistencyChecker.Evaluate(application).ToList();
+        var potentialDuplicates = await _db.LoanApplications
+            .Where(a => a.Id != application.Id && a.EmployeeId == application.EmployeeId && a.CollegeId == application.CollegeId &&
+                a.CourseId == application.CourseId && a.Status != ApplicationStatus.Draft && a.Status != ApplicationStatus.Cancelled && a.Status != ApplicationStatus.Rejected)
+            .Select(a => a.Id).ToListAsync(ct);
+        if (potentialDuplicates.Count > 0)
+            consistencyFlags.Add(new("POTENTIAL_DUPLICATE", "Potential duplicate application", "High",
+                $"Found {potentialDuplicates.Count} other non-cancelled, non-rejected application(s) for the same employee, college, and course. Review the records; this is not a fraud determination."));
+        var activeFlagCodes = await _db.ConsistencyFlags.Where(f => f.ApplicationId == application.Id &&
+            (f.Status == ConsistencyFlagStatus.Open || f.Status == ConsistencyFlagStatus.UnderInvestigation))
+            .Select(f => f.RuleCode).ToListAsync(ct);
+        var newFlags = consistencyFlags.Where(f => !activeFlagCodes.Contains(f.Code, StringComparer.OrdinalIgnoreCase)).ToList();
+        var flagDetectedAt = DateTime.UtcNow;
+        foreach (var detected in newFlags)
+        {
+            var flag = new ConsistencyFlag { Id = Guid.NewGuid(), ApplicationId = application.Id, RuleCode = detected.Code,
+                Title = detected.Title, Category = detected.Code == "POTENTIAL_DUPLICATE" ? "Duplicate" : "Consistency",
+                Severity = detected.Severity, Description = detected.Description, DetectedAtUtc = flagDetectedAt,
+                Status = ConsistencyFlagStatus.Open };
+            _db.AddConsistencyFlag(flag);
+            _db.AddConsistencyFlagHistory(new ConsistencyFlagHistory { Id = Guid.NewGuid(), ConsistencyFlagId = flag.Id,
+                ActorUserId = employee.Id, Action = "Detected", Notes = "Created during application submission by deterministic checks.", CreatedAtUtc = flagDetectedAt });
+        }
+
         var reviewers = await _db.Users
             .Where(u => u.IsActive && (u.Role == UserRole.Admin || u.Role == UserRole.HR))
             .Select(u => u.Id)
@@ -121,6 +173,14 @@ public class SubmitLoanApplicationCommandHandler : IRequestHandler<SubmitLoanApp
                 Category = "Application", Link = $"/admin/applications/{application.Id}",
                 CreatedAtUtc = DateTime.UtcNow
             });
+        }
+
+        if (newFlags.Count > 0)
+        {
+            foreach (var reviewerId in reviewers)
+                _db.AddNotification(new Notification { Id = Guid.NewGuid(), UserId = reviewerId,
+                    Title = "Consistency flags detected", Message = $"{newFlags.Count} new consistency flag(s) were detected for application {application.ApplicationNumber}.",
+                    Category = "ConsistencyFlag", Link = $"/admin/applications/{application.Id}", CreatedAtUtc = flagDetectedAt });
         }
 
         await _db.SaveChangesAsync(ct);

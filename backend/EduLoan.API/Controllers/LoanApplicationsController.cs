@@ -1,4 +1,5 @@
 using EduLoan.Application.Common;
+using EduLoan.API.Services;
 using EduLoan.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using EduLoan.Application.Features.LoanApplications;
@@ -102,14 +103,26 @@ public class LoanApplicationsController : ControllerBase
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (!AllowedExtensions.Contains(extension))
             throw new InvalidFileException("Only PDF, JPG, and PNG files are allowed.");
+        if (!UploadedFileValidator.HasAllowedSignature(file))
+            throw new InvalidFileException("The file content does not match a supported PDF, JPG, or PNG document.");
+        if (string.IsNullOrWhiteSpace(documentType) || documentType.Trim().Length > 100)
+            throw new InvalidFileException("Choose a valid document type (maximum 100 characters).");
 
-        await using var stream = file.OpenReadStream();
-        var storedFileName = await _fileStorage.SaveAsync(stream, file.FileName, ct);
-
-        var result = await _mediator.Send(new AddDocumentCommand(
-            id, UserId, documentType, file.FileName, storedFileName, file.ContentType, file.Length), ct);
-
-        return Ok(ApiResponse<ApplicationDocumentDto>.SuccessResponse(result, "Document uploaded."));
+        string storedFileName;
+        await using (var stream = file.OpenReadStream())
+            storedFileName = await _fileStorage.SaveAsync(stream, Path.GetFileName(file.FileName), ct);
+        try
+        {
+            var result = await _mediator.Send(new AddDocumentCommand(
+                id, UserId, documentType.Trim(), Path.GetFileName(file.FileName), storedFileName,
+                string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType, file.Length), ct);
+            return Ok(ApiResponse<ApplicationDocumentDto>.SuccessResponse(result, "Document uploaded."));
+        }
+        catch
+        {
+            await _fileStorage.DeleteAsync(storedFileName, ct);
+            throw;
+        }
     }
 
     [HttpPost("{id:guid}/documents/from-library/{libraryDocumentId:guid}")]

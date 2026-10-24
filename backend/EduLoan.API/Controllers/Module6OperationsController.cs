@@ -212,7 +212,10 @@ public sealed class Module6OperationsController : ControllerBase
         if (h is not null && h.ReceivedAtUtc is not null) return Conflict(ApiResponse<object>.FailureResponse("Finance has already received this application."));
         if (h is null) { h = new FinanceHandoff { Id = Guid.NewGuid(), ApplicationId = app.Id }; _db.FinanceHandoffs.Add(h); }
         h.ReceivedByUserId = ActorId; h.ReceivedAtUtc = DateTime.UtcNow; h.Status = "Pending Finance Review"; h.FinanceComments = request.Comments; h.UpdatedAtUtc = DateTime.UtcNow;
-        await Audit(app.Id, WorkflowAction.FinanceReceived, "Finance marked application received.", ct); await _db.SaveChangesAsync(ct);
+        await Audit(app.Id, WorkflowAction.FinanceReceived, "Finance marked application received.", ct);
+        try { await _db.SaveChangesAsync(ct); }
+        catch (DbUpdateConcurrencyException) { return Conflict(ApiResponse<object>.FailureResponse("This Finance record was updated by another user. Refresh and retry.")); }
+        catch (DbUpdateException) { return Conflict(ApiResponse<object>.FailureResponse("A Finance handoff already exists or the record changed. Refresh and retry.")); }
         return Ok(ApiResponse<object>.SuccessResponse(new { h.Id, h.Status }, "Application received by Finance."));
     }
 
@@ -228,7 +231,9 @@ public sealed class Module6OperationsController : ControllerBase
         if (h is null || h.Status != "Pending Finance Review" || h.ReceivedAtUtc is null)
             return Conflict(ApiResponse<object>.FailureResponse("Mark the application received by Finance before sending it to the bank."));
         h.BankReferenceNumber = request.BankReferenceNumber.Trim(); h.BankSubmissionDateUtc = request.BankSubmissionDateUtc; h.Status = "Awaiting Bank Confirmation"; h.FinanceComments = request.Comments; h.UpdatedAtUtc = DateTime.UtcNow;
-        await Audit(app.Id, WorkflowAction.SentToBank, "Finance sent application to bank. Reference: " + h.BankReferenceNumber, ct); await _db.SaveChangesAsync(ct);
+        await Audit(app.Id, WorkflowAction.SentToBank, "Finance sent application to bank. Reference: " + h.BankReferenceNumber, ct);
+        try { await _db.SaveChangesAsync(ct); }
+        catch (DbUpdateConcurrencyException) { return Conflict(ApiResponse<object>.FailureResponse("This Finance record was updated by another user. Refresh and retry.")); }
         return Ok(ApiResponse<object>.SuccessResponse(new { h.Id, h.Status }, "Bank submission recorded."));
     }
 
@@ -246,7 +251,8 @@ public sealed class Module6OperationsController : ControllerBase
         app.Status = ApplicationStatus.Processed; app.UpdatedAt = DateTime.UtcNow;
         await Audit(app.Id, WorkflowAction.ConfirmedProcessed, "External bank processing confirmation recorded. Reference: " + h.ConfirmationReference, ct);
         _db.Notifications.Add(new Notification { Id = Guid.NewGuid(), UserId = app.EmployeeId, Title = "Bank processing confirmed", Message = $"External processing confirmation was recorded for application {app.ApplicationNumber}. Reference: {h.ConfirmationReference}.", Category = "Finance", Link = "/employee/applications", CreatedAtUtc = DateTime.UtcNow });
-        await _db.SaveChangesAsync(ct);
+        try { await _db.SaveChangesAsync(ct); }
+        catch (DbUpdateConcurrencyException) { return Conflict(ApiResponse<object>.FailureResponse("This Finance record was updated by another user. Refresh and retry.")); }
         return Ok(ApiResponse<object>.SuccessResponse(new { h.Id, h.Status, ApplicationStatus = app.Status.ToString() }, "Processing confirmation recorded. No funds were transferred by this system."));
     }
 
@@ -262,7 +268,8 @@ public sealed class Module6OperationsController : ControllerBase
         h.Status = "Processing Failed"; h.FailureReason = request.FailureReason.Trim(); h.FinanceComments = request.Comments; h.UpdatedAtUtc = DateTime.UtcNow;
         await Audit(app.Id, WorkflowAction.ProcessingFailed, "External bank processing failed: " + h.FailureReason, ct);
         _db.Notifications.Add(new Notification { Id = Guid.NewGuid(), UserId = app.EmployeeId, Title = "Bank processing needs attention", Message = $"Bank processing for application {app.ApplicationNumber} could not be confirmed. The Finance team will review the issue.", Category = "Finance", Link = "/employee/applications", CreatedAtUtc = DateTime.UtcNow });
-        await _db.SaveChangesAsync(ct);
+        try { await _db.SaveChangesAsync(ct); }
+        catch (DbUpdateConcurrencyException) { return Conflict(ApiResponse<object>.FailureResponse("This Finance record was updated by another user. Refresh and retry.")); }
         return Ok(ApiResponse<object>.SuccessResponse(new { h.Id, h.Status }, "Bank processing failure recorded."));
     }
 

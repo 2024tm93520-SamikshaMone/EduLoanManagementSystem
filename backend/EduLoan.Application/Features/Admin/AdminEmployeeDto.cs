@@ -10,5 +10,6 @@ public record AdminEmployeeDto(
     DateOnly DateOfJoining,
     decimal MonthlySalary,
     string? PhoneNumber,
+    string? EmploymentType,
     bool IsActive
 );

@@ -1,4 +1,5 @@
 using EduLoan.Application.Common;
+using EduLoan.Application.Features.AdminApplications;
 using EduLoan.Application.Features.EligibilityRules;
 using EduLoan.Application.Features.LoanApplications;
 using EduLoan.Application.Interfaces;
@@ -134,7 +135,7 @@ public class LoanApplicationFeatureTests
         db.LoanApplications.Add(application);
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine(), new ApplicationConsistencyChecker());
 
         await Assert.ThrowsAsync<InUseException>(
             () => handler.Handle(new SubmitLoanApplicationCommand(application.Id, owner), default));
@@ -165,7 +166,7 @@ public class LoanApplicationFeatureTests
         });
         await db.SaveChangesAsync();
 
-        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine());
+        var handler = new SubmitLoanApplicationCommandHandler(db, new EligibilityRuleEngine(), new ApplicationConsistencyChecker());
         var result = await handler.Handle(new SubmitLoanApplicationCommand(application.Id, owner), default);
 
         Assert.Equal("Submitted", result.Status);

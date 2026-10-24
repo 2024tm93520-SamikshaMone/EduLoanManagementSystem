@@ -19,6 +19,8 @@ public class User
     public int? DepartmentId { get; set; }
     public Department? Department { get; set; }
     public string? Designation { get; set; }
+    // Maintained from the authoritative employee/HR record; nullable for legacy records until verified.
+    public string? EmploymentType { get; set; }
     public DateOnly DateOfJoining { get; set; }
     public decimal MonthlySalary { get; set; }
     public string? PhoneNumber { get; set; }

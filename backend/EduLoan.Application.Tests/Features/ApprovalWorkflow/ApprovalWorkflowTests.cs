@@ -103,6 +103,88 @@ public class ApprovalWorkflowTests
     }
 
     [Fact]
+    public async Task Approve_WithUnverifiedRequiredDocument_IsBlocked()
+    {
+        using var db = TestDbContextFactory.Create();
+        var employee = BuildUser(Guid.NewGuid(), UserRole.Employee);
+        var admin = BuildUser(Guid.NewGuid(), UserRole.Admin);
+        var application = BuildApplication(employee.Id, ApplicationStatus.UnderReview);
+        db.Users.AddRange(employee, admin);
+        db.LoanApplications.Add(application);
+        db.ApplicationDocuments.Add(new ApplicationDocument
+        {
+            Id = Guid.NewGuid(),
+            ApplicationId = application.Id,
+            DocumentType = "Fee Receipt",
+            FileName = "receipt.pdf",
+            StoredFileName = "receipt-stored.pdf",
+            IsRequired = true,
+            VerificationStatus = DocumentVerificationStatus.Pending
+        });
+        await db.SaveChangesAsync();
+
+        var ex = await Assert.ThrowsAsync<InUseException>(() =>
+            new ApproveApplicationCommandHandler(db).Handle(
+                new ApproveApplicationCommand(application.Id, admin.Id, "Looks good"), default));
+
+        Assert.Contains("Fee Receipt", ex.Message);
+        Assert.Equal(ApplicationStatus.UnderReview, application.Status);
+    }
+
+    [Fact]
+    public async Task Approve_BlocksWhenConfiguredRequiredDocumentWasNeverUploaded()
+    {
+        using var db = TestDbContextFactory.Create();
+        var employee = BuildUser(Guid.NewGuid(), UserRole.Employee);
+        var admin = BuildUser(Guid.NewGuid(), UserRole.Admin);
+        var application = BuildApplication(employee.Id, ApplicationStatus.UnderReview);
+        db.Users.AddRange(employee, admin);
+        db.LoanApplications.Add(application);
+        db.DocumentRequirements.Add(new DocumentRequirement
+        {
+            DocumentType = "Fee Receipt", DisplayName = "Fee Receipt", Category = "Financial",
+            IsRequired = true, IsActive = true,
+        });
+        await db.SaveChangesAsync();
+
+        var ex = await Assert.ThrowsAsync<InUseException>(() =>
+            new ApproveApplicationCommandHandler(db).Handle(
+                new ApproveApplicationCommand(application.Id, admin.Id, "Looks good"), default));
+
+        Assert.Contains("Fee Receipt", ex.Message);
+        Assert.Equal(ApplicationStatus.UnderReview, application.Status);
+    }
+
+    [Fact]
+    public async Task Approve_WithVerifiedRequiredDocuments_Succeeds()
+    {
+        using var db = TestDbContextFactory.Create();
+        var employee = BuildUser(Guid.NewGuid(), UserRole.Employee);
+        var admin = BuildUser(Guid.NewGuid(), UserRole.Admin);
+        var application = BuildApplication(employee.Id, ApplicationStatus.UnderReview);
+        db.Users.AddRange(employee, admin);
+        db.LoanApplications.Add(application);
+        db.ApplicationDocuments.Add(new ApplicationDocument
+        {
+            Id = Guid.NewGuid(),
+            ApplicationId = application.Id,
+            DocumentType = "Fee Receipt",
+            FileName = "receipt.pdf",
+            StoredFileName = "receipt-stored.pdf",
+            IsRequired = true,
+            VerificationStatus = DocumentVerificationStatus.Verified,
+            VerifiedByUserId = admin.Id,
+            VerifiedAtUtc = DateTime.UtcNow
+        });
+        await db.SaveChangesAsync();
+
+        var result = await new ApproveApplicationCommandHandler(db).Handle(
+            new ApproveApplicationCommand(application.Id, admin.Id, "Documents checked"), default);
+
+        Assert.Equal("Approved", result.Status);
+    }
+
+    [Fact]
     public void RejectValidator_RequiresComments()
     {
         var validator = new RejectApplicationCommandValidator();

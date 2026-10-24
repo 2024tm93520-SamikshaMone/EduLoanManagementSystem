@@ -17,4 +17,6 @@ public class FinanceHandoff
     public string? FailureReason { get; set; }
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
+    // SQL Server-generated optimistic concurrency token for competing Finance actions.
+    public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 }
