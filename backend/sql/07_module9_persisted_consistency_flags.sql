@@ -27,7 +27,7 @@ GO
 
 IF OBJECT_ID(N'dbo.Users', N'U') IS NULL
 BEGIN
-    THROW 50020,
+    ;THROW 50020,
         'Prerequisite table dbo.Users was not found in EduLoanDB. Run the base EduLoan schema first.',
         1;
 END;
@@ -35,7 +35,7 @@ GO
 
 IF OBJECT_ID(N'dbo.LoanApplication', N'U') IS NULL
 BEGIN
-    THROW 50021,
+    ;THROW 50021,
         'Prerequisite table dbo.LoanApplication was not found in EduLoanDB. Verify the database and schema.',
         1;
 END;
