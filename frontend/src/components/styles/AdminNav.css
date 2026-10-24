@@ -467,4 +467,4 @@
   margin: 18px 9px;
 
   background: #ebe5f2;
-}
+}.admin-notification-count-badge{position:absolute;top:-4px;right:-5px;min-width:17px;height:17px;padding:0 4px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #fff;border-radius:10px;background:#e83d70;color:#fff;font-size:10px;font-weight:700;line-height:1;box-sizing:border-box}

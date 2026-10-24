@@ -279,7 +279,7 @@ export default function HelpSupportPage() {
         {
           question: "Does the portal perform the actual loan disbursement?",
           answer:
-            "No. The system supports the workflow up to processing confirmation. Actual loan disbursement is handled outside the proposed platform.",
+            "No real money is transferred or collected. Finance processing confirmation is recorded separately; the optional Module 11 demo screen can record a clearly labelled simulation activation event and simulated repayment entries only after that confirmation. These records are not proof of a real bank disbursement or payment.",
         },
         {
           question: "Where can I provide processing confirmation?",

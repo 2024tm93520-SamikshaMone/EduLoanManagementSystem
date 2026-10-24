@@ -29,8 +29,9 @@ describe("FinanceNav", () => {
 
   it("shows the notification icon in the header without a duplicate sidebar item", () => {
     renderFinanceNav();
-    expect(screen.getByRole("link", { name: "Notifications" })).toBeInTheDocument();
-    expect(screen.queryByText("Notifications")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Notifications" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Notifications" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Notifications" })).toHaveLength(1);
   });
 
   it("shows Help & Support in the sidebar", () => {

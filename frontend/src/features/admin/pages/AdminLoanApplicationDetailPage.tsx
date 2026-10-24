@@ -17,6 +17,7 @@ import {
 import { getStoredUser } from "../../../services/authService";
 import SimilarApplicationsPanel from "./SimilarApplicationsPanel";
 import ApplicationConsistencyPanel from "./ApplicationConsistencyPanel";
+import ConsistencyFlagReviewPanel from "./ConsistencyFlagReviewPanel";
 import "../styles/AdminLoanApplicationDetailPage.css";
 
 type ActionKind = "approve" | "reject" | "requestInfo" | "manualReview" | "confirmProcessed" | null;
@@ -220,6 +221,7 @@ export default function AdminLoanApplicationDetailPage() {
 
         {id && <SimilarApplicationsPanel applicationId={id} />}
         {id && <ApplicationConsistencyPanel applicationId={id} />}
+        {id && <ConsistencyFlagReviewPanel applicationId={id} />}
 
         {(canStartReview || canReviewActions || canSendToFinance || canConfirmProcessed) && (
           <div className="admin-detail-actions">

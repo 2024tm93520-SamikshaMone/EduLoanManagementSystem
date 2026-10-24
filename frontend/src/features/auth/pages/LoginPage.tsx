@@ -6,6 +6,7 @@ import "../styles/LoginPage.css";
 const ROLE_HOME_ROUTE: Record<UserRole, string> = {
   Employee: "/employee/dashboard",
   Admin: "/admin/dashboard",
+  HR: "/hr/dashboard",
   Finance: "/finance/dashboard",
 };
 

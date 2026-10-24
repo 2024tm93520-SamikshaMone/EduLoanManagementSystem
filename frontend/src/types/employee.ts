@@ -6,6 +6,7 @@ export interface EmployeeProfile {
   role: string;
   departmentName: string | null;
   designation: string | null;
+  employmentType?: string | null;
   dateOfJoining: string;
   tenureMonths: number;
   monthlySalary: number;

@@ -15,6 +15,7 @@ interface AdminEmployee {
   dateOfJoining: string;
   monthlySalary: number;
   phoneNumber: string | null;
+  employmentType: string | null;
   isActive: boolean;
 }
 
@@ -40,6 +41,9 @@ export default function AdminEmployeesPage() {
   const [employees, setEmployees] = useState<AdminEmployee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [employmentDrafts, setEmploymentDrafts] = useState<Record<string, string>>({});
+  const [savingEmploymentId, setSavingEmploymentId] = useState<string | null>(null);
+  const [employmentMessage, setEmploymentMessage] = useState("");
 
   async function loadEmployees() {
     try {
@@ -95,6 +99,23 @@ export default function AdminEmployeesPage() {
     loadEmployees();
   }, []);
 
+  async function saveEmploymentType(employee: AdminEmployee) {
+    const employmentType = (employmentDrafts[employee.id] ?? employee.employmentType ?? "").trim();
+    setSavingEmploymentId(employee.id); setEmploymentMessage(""); setError("");
+    try {
+      const token = sessionStorage.getItem("eduloan_access_token");
+      const response = await fetch(`${API_BASE_URL}/employees/${employee.id}/employment-type`, {
+        method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ employmentType: employmentType || null }),
+      });
+      const body = await response.json();
+      if (!response.ok || !body.success) throw new Error(body.message || "Could not update employment type.");
+      setEmployees(items => items.map(item => item.id === employee.id ? { ...item, employmentType: body.data.employmentType } : item));
+      setEmploymentMessage(`Employment type updated for ${employee.employeeCode}.`);
+    } catch (e) { setError(e instanceof Error ? e.message : "Could not update employment type."); }
+    finally { setSavingEmploymentId(null); }
+  }
+
   return (
     <div className="admin-employees-page">
       <div className="admin-employees-inner">
@@ -118,6 +139,7 @@ export default function AdminEmployeesPage() {
           </div>
         )}
 
+        {employmentMessage && <p role="status">{employmentMessage}</p>}
         {!loading && error && (
           <div className="admin-employees-error">
             <strong>Unable to load employees</strong>
@@ -155,6 +177,7 @@ export default function AdminEmployeesPage() {
                     <th>Designation</th>
                     <th>Date of Joining</th>
                     <th>Monthly Salary</th>
+                    <th>Employment Type (HR source)</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -193,6 +216,19 @@ export default function AdminEmployeesPage() {
 
                       <td>
                         {formatSalary(employee.monthlySalary)}
+                      </td>
+
+                      <td>
+                        <div>
+                          <input aria-label={`Employment type for ${employee.employeeCode}`} maxLength={50}
+                            value={employmentDrafts[employee.id] ?? employee.employmentType ?? ""}
+                            placeholder="Unconfirmed"
+                            onChange={e => setEmploymentDrafts(current => ({ ...current, [employee.id]: e.target.value }))} />
+                          <button type="button" disabled={savingEmploymentId === employee.id}
+                            onClick={() => void saveEmploymentType(employee)}>
+                            {savingEmploymentId === employee.id ? "Saving…" : "Save"}
+                          </button>
+                        </div>
                       </td>
 
                       <td>

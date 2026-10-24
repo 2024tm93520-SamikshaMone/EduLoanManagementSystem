@@ -6,3 +6,4 @@
 .finance-notifications-shell .notification-item{border-color:#eadcf4;border-radius:13px;box-shadow:0 5px 18px rgba(91,36,128,.04)}
 .finance-notifications-shell .notifications-empty{background:#fff;border-color:#eadcf4}
 @media(max-width:700px){.finance-notifications-shell .notifications-page{margin-left:0;padding:138px 16px 30px}.finance-notifications-shell .notifications-heading{align-items:flex-start;flex-direction:column}.finance-notifications-shell .notifications-heading h1{font-size:29px}}
+.notifications-heading-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.notifications-error{display:flex;align-items:center;justify-content:space-between;gap:12px}.notifications-error button{border:1px solid #b42318;border-radius:8px;padding:7px 12px;background:#fff;color:#b42318;font-weight:600;cursor:pointer}

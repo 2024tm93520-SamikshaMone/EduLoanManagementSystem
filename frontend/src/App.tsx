@@ -28,9 +28,12 @@ import AdminNav from "./components/pages/AdminNav";
 
 import PasswordPage from "./features/auth/pages/PasswordPage";
 import FinanceDashboardPage from "./features/finance/FinanceDashboardPage";
+import RepaymentSimulationPage from "./features/finance/RepaymentSimulationPage";
 import FinanceNav from "./components/pages/FinanceNav";
 import DocumentRequirementsPage from "./features/admin/pages/DocumentRequirementsPage";
 import NotificationsPage from "./features/shared/NotificationsPage";
+import RoleDashboardPage from "./features/shared/RoleDashboardPage";
+import AuditTrailPage from "./features/admin/pages/AuditTrailPage";
 
 
 /* =========================================================
@@ -50,6 +53,8 @@ function LoginRoute() {
 /* =========================================================
    EMPLOYEE ROUTES
    ========================================================= */
+
+function EmployeeDashboardRoute() { return <><EmployeeNav /><RoleDashboardPage /></>; }
 
 function EmployeeProfileRoute() {
   return (
@@ -213,7 +218,7 @@ export default function App() {
 
         <Route
           path="/employee/dashboard"
-          element={<EmployeeProfileRoute />}
+          element={<EmployeeDashboardRoute />}
         />
 
         <Route
@@ -240,7 +245,9 @@ export default function App() {
           element={<EmployeeHelpSupportRoute />}
         />
 
+        <Route path="/hr/dashboard" element={<><AdminNav /><RoleDashboardPage /></>} />
         <Route path="/finance/dashboard" element={<><FinanceNav /><FinanceDashboardPage /></>} />
+        <Route path="/finance/repayment-simulation" element={<><FinanceNav /><RepaymentSimulationPage /></>} />
         <Route path="/finance/notifications" element={<FinanceNotificationsRoute />} />
         <Route path="/finance/help" element={<FinanceHelpSupportRoute />} />
         <Route path="/finance/profile" element={<><FinanceNav /><ProfilePage /></>} />
@@ -296,6 +303,7 @@ export default function App() {
         />
 
         <Route path="/admin/notifications" element={<><AdminNav /><NotificationsPage /></>} />
+        <Route path="/admin/audit" element={<><AdminNav /><AuditTrailPage /></>} />
 
         <Route
           path="/admin/help"

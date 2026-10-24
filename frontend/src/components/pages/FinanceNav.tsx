@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/FinanceNav.css";
 import { clearSession, getStoredUser } from "../../services/authService";
+import { useUnreadNotificationCount } from "../../features/shared/hooks/useUnreadNotificationCount";
 
 type IconName =
   | "dashboard"
@@ -90,6 +91,7 @@ function Mark() {
 }
 
 export default function FinanceNav() {
+  const { unreadCount } = useUnreadNotificationCount();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -165,7 +167,7 @@ export default function FinanceNav() {
             onClick={() => navigate("/finance/notifications")}
           >
             <Icon type="notifications" />
-            <span className="notification-dot" />
+            {unreadCount > 0 && <span className="notification-count-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>}
           </button>
 
           <div className="finance-profile-menu-wrapper" ref={profileMenuRef}>
@@ -258,6 +260,14 @@ export default function FinanceNav() {
           >
             <Icon type="dashboard" />
             <span>Dashboard</span>
+          </Link>
+
+          <Link
+            to="/finance/repayment-simulation"
+            className={`finance-shell-link ${active("/finance/repayment-simulation") ? "active" : ""}`}
+          >
+            <Icon type="dashboard" />
+            <span>Repayment Simulation</span>
           </Link>
 
           <div className="finance-shell-separator" />

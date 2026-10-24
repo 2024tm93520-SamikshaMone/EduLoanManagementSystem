@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ProfileError,
   getMyProfile,
@@ -32,6 +33,25 @@ function getInitials(fullName: string): string {
     .join("");
 }
 
+type DashboardData = {
+  role: string;
+  summary: Record<string, number>;
+  statusOverview: Array<{ status: string; count: number }>;
+  recentApplications: Array<{
+    id?: string;
+    applicationId?: string;
+    applicationNumber: string;
+    status: string;
+    requestedAmount?: number;
+    createdAt?: string;
+    updatedAt?: string;
+  }>;
+};
+
+const API =
+  (import.meta as ImportMeta & { env?: { VITE_API_BASE_URL?: string } }).env
+    ?.VITE_API_BASE_URL ?? "https://localhost:7001/api/v1";
+
 const COUNTRY_CODES = [
   { code: "+91", label: "India (+91)" },
   { code: "+1", label: "USA (+1)" },
@@ -55,6 +75,37 @@ export default function ProfilePage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Dashboard data is loaded independently from the original employee profile.
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [dashboardError, setDashboardError] = useState("");
+
+  const loadDashboard = useCallback(async () => {
+    setDashboardLoading(true);
+    setDashboardError("");
+    try {
+      const token = sessionStorage.getItem("eduloan_access_token");
+      const response = await fetch(`${API}/dashboards/me`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const body = await response.json();
+      if (!response.ok || !body.success) {
+        throw new Error(body.message || "Unable to load dashboard.");
+      }
+      setDashboard(body.data as DashboardData);
+    } catch (error) {
+      setDashboardError(
+        error instanceof Error ? error.message : "Unable to load dashboard."
+      );
+    } finally {
+      setDashboardLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadDashboard();
+  }, [loadDashboard]);
 
   useEffect(() => {
     let rejectled = false;
@@ -155,6 +206,12 @@ export default function ProfilePage() {
   return (
     <main className="profile-page">
       <div className="profile-page-inner">
+
+        <header className="profile-dashboard-heading">
+          <p>EMPLOYEE EDUCATION LOAN MANAGEMENT</p>
+          <h1 id="employee-dashboard-title">My education loan dashboard</h1>
+          <span>Live summaries from the application database</span>
+        </header>
         <div className="profile-breadcrumb">
           <span>Home</span>
           <span className="breadcrumb-separator">›</span>
@@ -223,6 +280,10 @@ export default function ProfilePage() {
               <div className="information-row">
                 <span>Designation</span>
                 <strong>{profile.designation ?? "—"}</strong>
+              </div>
+              <div className="information-row">
+                <span>Employment Type</span>
+                <strong>{profile.employmentType ?? "Not confirmed by HR"}</strong>
               </div>
               <div className="information-row">
                 <span>Tenure</span>
@@ -349,6 +410,69 @@ export default function ProfilePage() {
           <div className="learning-symbol" aria-hidden="true">
             ✦
           </div>
+        </section>
+        <section className="profile-dashboard-section" aria-labelledby="employee-dashboard-title">
+
+
+          {dashboardLoading ? (
+            <div className="profile-dashboard-state" role="status">Loading dashboard…</div>
+          ) : dashboardError ? (
+            <div className="profile-dashboard-state profile-dashboard-error" role="alert">
+              <p>{dashboardError}</p>
+              <button type="button" onClick={() => void loadDashboard()}>Retry</button>
+            </div>
+          ) : dashboard ? (
+            <>
+              <section className="profile-dashboard-cards" aria-label="Dashboard summary">
+                {Object.entries(dashboard.summary).map(([key, value]) => (
+                  <article key={key}>
+                    <span>{key.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase())}</span>
+                    <strong>{value.toLocaleString()}</strong>
+                  </article>
+                ))}
+              </section>
+
+              <section className="profile-dashboard-grid">
+                <article>
+                  <h2>Applications by status</h2>
+                  {dashboard.statusOverview.length === 0 ? (
+                    <p>No application data available.</p>
+                  ) : (
+                    <ul>
+                      {dashboard.statusOverview.map((item) => (
+                        <li key={item.status}><span>{item.status}</span><strong>{item.count}</strong></li>
+                      ))}
+                    </ul>
+                  )}
+                </article>
+                <article>
+                  <h2>Recent applications</h2>
+                  {dashboard.recentApplications.length === 0 ? (
+                    <p>No recent applications.</p>
+                  ) : (
+                    <div className="profile-dashboard-table-wrap">
+                      <table>
+                        <thead><tr><th>Application</th><th>Status</th><th>Requested</th></tr></thead>
+                        <tbody>
+                          {dashboard.recentApplications.map((item) => (
+                            <tr key={item.id || item.applicationId || item.applicationNumber}>
+                              <td>{item.applicationNumber}</td>
+                              <td>{item.status}</td>
+                              <td>{item.requestedAmount === undefined ? "—" : new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(item.requestedAmount)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </article>
+              </section>
+              <nav className="profile-dashboard-links" aria-label="Dashboard shortcuts">
+                <Link to="/employee/applications">My applications</Link>
+                <Link to="/employee/notifications">Notifications</Link>
+              </nav>
+            </>
+          ) : null}
         </section>
       </div>
     </main>

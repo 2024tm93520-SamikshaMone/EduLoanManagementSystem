@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/AdminNav.css";
+import { useUnreadNotificationCount } from "../../features/shared/hooks/useUnreadNotificationCount";
 
 type IconName =
   | "dashboard"
@@ -152,6 +153,7 @@ function AccentureMark() {
 }
 
 export default function AdminNav() {
+  const { unreadCount } = useUnreadNotificationCount();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -239,7 +241,7 @@ export default function AdminNav() {
               <path d="M10 21h4" />
             </svg>
 
-            <span className="admin-notification-dot" />
+            {unreadCount > 0 && <span className="admin-notification-count-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>}
           </button>
 
           {/* ADMIN PROFILE */}
@@ -429,6 +431,11 @@ export default function AdminNav() {
           >
             <NavIcon name="reports" />
             <span>Reports</span>
+          </Link>
+
+          <Link to="/admin/audit" className={`admin-sidebar-link ${isActive("/admin/audit") ? "active" : ""}`}>
+            <NavIcon name="reports" />
+            <span>Audit Trail</span>
           </Link>
 
           <div className="admin-sidebar-divider" />

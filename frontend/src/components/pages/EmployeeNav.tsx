@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/EmployeeNav.css";
+import { useUnreadNotificationCount } from "../../features/shared/hooks/useUnreadNotificationCount";
 
 type IconName =
   | "profile"
@@ -138,6 +139,7 @@ function isProfileRoute(pathname: string): boolean {
 }
 
 export default function EmployeeNav() {
+  const { unreadCount } = useUnreadNotificationCount();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -204,7 +206,7 @@ export default function EmployeeNav() {
           onClick={() => navigate("/employee/notifications")}
         >
           <NavIcon name="notifications" />
-          <span className="notification-dot" />
+          {unreadCount > 0 && <span className="notification-count-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>}
         </button>
 
         {/* PROFILE SECTION */}
